@@ -172,25 +172,14 @@ export function useNetworkGraph(
 
       const nodeList = Array.from(states.values());
 
-      const maxDrag = 120;
       nodeList.forEach((n) => {
         if (grabbedNodeId === n.id && grabPosition) {
-          const dx = grabPosition.x - n.targetX;
-          const dy = grabPosition.y - n.targetY;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist > maxDrag && dist > 0) {
-            n.x = n.targetX + (dx / dist) * maxDrag;
-            n.y = n.targetY + (dy / dist) * maxDrag;
-          } else {
-            n.x = grabPosition.x;
-            n.y = grabPosition.y;
-          }
+          n.x = grabPosition.x;
+          n.y = grabPosition.y;
           n.vx = 0;
           n.vy = 0;
           return;
         }
-
-        if (grabbedNodeId) return;
 
         let fx = 0;
         let fy = 0;
