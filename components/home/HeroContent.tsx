@@ -35,7 +35,7 @@ export default function HeroContent() {
           color: "rgba(255, 255, 255, 0.5)",
         }}
       >
-        Autonomous affiliate infrastructure.
+        Growth, powered up.
       </p>
     </div>
   );
