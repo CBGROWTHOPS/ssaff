@@ -41,7 +41,7 @@ export type NodeState = {
 };
 
 const BOOT_DURATION = 1500;
-const SPRING_REST_LENGTH = 170;
+const SPRING_REST_LENGTH = 300;
 const SPRING_STRENGTH = 0.018;
 const REPEL_STRENGTH = 32;
 const REPEL_RADIUS = 200;
@@ -104,7 +104,7 @@ export function useNetworkGraph(
   const initStates = useCallback(() => {
     const cx = width / 2;
     const cy = height / 2;
-    const targets = placeNodesInCircle(NODES, cx, cy, Math.min(width, height) * 0.28);
+    const targets = placeNodesInCircle(NODES, cx, cy, Math.min(width, height) * 0.45);
 
     const states = new Map<string, NodeState>();
     NODES.forEach((n) => {

@@ -9,9 +9,10 @@ import {
 } from "@/hooks/useNetworkGraph";
 
 const BG = "#0f0d0b";
-const NODE_FILL = "rgba(255, 255, 255, 0.75)";
-const NODE_GLOW = "rgba(255, 255, 255, 0.3)";
-const EDGE_COLOR = "rgba(255, 255, 255, 0.12)";
+const NODE_FILL = "#d4915a";
+const NODE_GLOW = "rgba(220, 140, 70, 0.4)";
+const NODE_HALO = "rgba(200, 120, 50, 0.06)";
+const EDGE_DEFAULT = "rgba(255, 255, 255, 0.08)";
 const LABEL_COLOR = "rgba(255, 255, 255, 0.22)";
 const BOOT_DURATION = 1500;
 
@@ -195,9 +196,6 @@ export default function NetworkGraph() {
         edgeProgress = easeOutExpo(t);
       }
 
-      ctx.shadowBlur = 6;
-      ctx.shadowColor = "rgba(80, 180, 255, 0.5)";
-      ctx.lineWidth = 1.2;
       EDGES.forEach(([a, b]) => {
         const pa = getPos(a);
         const pb = getPos(b);
@@ -208,11 +206,20 @@ export default function NetworkGraph() {
         const len = Math.hypot(dx, dy);
         if (len === 0) return;
 
-        const gradient = ctx.createLinearGradient(pa.x, pa.y, pb.x, pb.y);
-        gradient.addColorStop(0, "rgba(0, 120, 255, 0.6)");
-        gradient.addColorStop(0.5, "rgba(80, 200, 255, 0.9)");
-        gradient.addColorStop(1, "rgba(0, 120, 255, 0.6)");
-        ctx.strokeStyle = gradient;
+        const isHighlighted = grabbedNodeId && (a === grabbedNodeId || b === grabbedNodeId);
+        if (isHighlighted) {
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = "rgba(80, 180, 255, 0.6)";
+          ctx.lineWidth = 1.5;
+          const gradient = ctx.createLinearGradient(pa.x, pa.y, pb.x, pb.y);
+          gradient.addColorStop(0, "rgba(0, 120, 255, 0.8)");
+          gradient.addColorStop(1, "rgba(80, 200, 255, 0.8)");
+          ctx.strokeStyle = gradient;
+        } else {
+          ctx.shadowBlur = 0;
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = EDGE_DEFAULT;
+        }
 
         ctx.beginPath();
         ctx.moveTo(pa.x, pa.y);
@@ -231,7 +238,14 @@ export default function NetworkGraph() {
       states.forEach((s) => {
         ctx.save();
         ctx.globalAlpha = nodeOpacity;
-        ctx.shadowBlur = 14;
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = NODE_HALO;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.radius * 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.shadowBlur = 16;
         ctx.shadowColor = NODE_GLOW;
         ctx.fillStyle = NODE_FILL;
         ctx.beginPath();
@@ -246,7 +260,7 @@ export default function NetworkGraph() {
         ctx.fillText(s.label, s.x, s.y + s.radius + 12);
       });
     },
-    [width, height, phase, nodeStates]
+    [width, height, phase, nodeStates, grabbedNodeId]
   );
 
   useEffect(() => {
