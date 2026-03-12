@@ -27,7 +27,7 @@ export default function HeroContent() {
         style={{ width: "min(280px, 40vw)", height: "auto" }}
       />
       <p
-        className="mt-3 tracking-[0.04em]"
+        className="mt-0.5 tracking-[0.04em]"
         style={{
           fontFamily: "var(--font-inter), sans-serif",
           fontSize: "clamp(12px, 1.2vw, 16px)",

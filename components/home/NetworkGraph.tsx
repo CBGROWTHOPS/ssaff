@@ -195,8 +195,9 @@ export default function NetworkGraph() {
         edgeProgress = easeOutExpo(t);
       }
 
-      ctx.strokeStyle = EDGE_COLOR;
-      ctx.lineWidth = 0.8;
+      ctx.shadowBlur = 6;
+      ctx.shadowColor = "rgba(80, 180, 255, 0.5)";
+      ctx.lineWidth = 1.2;
       EDGES.forEach(([a, b]) => {
         const pa = getPos(a);
         const pb = getPos(b);
@@ -207,6 +208,12 @@ export default function NetworkGraph() {
         const len = Math.hypot(dx, dy);
         if (len === 0) return;
 
+        const gradient = ctx.createLinearGradient(pa.x, pa.y, pb.x, pb.y);
+        gradient.addColorStop(0, "rgba(0, 120, 255, 0.6)");
+        gradient.addColorStop(0.5, "rgba(80, 200, 255, 0.9)");
+        gradient.addColorStop(1, "rgba(0, 120, 255, 0.6)");
+        ctx.strokeStyle = gradient;
+
         ctx.beginPath();
         ctx.moveTo(pa.x, pa.y);
         const dashLen = len * edgeProgress;
@@ -215,6 +222,7 @@ export default function NetworkGraph() {
         ctx.lineTo(endX, endY);
         ctx.stroke();
       });
+      ctx.shadowBlur = 0;
 
       const nodeOpacity = phase === "boot" && bootStartRef.current !== null
         ? Math.min(1, (now - bootStartRef.current) / 200)
