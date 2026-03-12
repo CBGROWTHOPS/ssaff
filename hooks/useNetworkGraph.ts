@@ -190,6 +190,8 @@ export function useNetworkGraph(
           return;
         }
 
+        if (grabbedNodeId) return;
+
         let fx = 0;
         let fy = 0;
 
