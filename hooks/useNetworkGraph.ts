@@ -32,27 +32,22 @@ export const EDGES: [string, string][] = [
   ["agent-core", "conversion-bridge"],
   ["agent-core", "offer-network"],
   ["agent-core", "optimization"],
+  ["agent-core", "profit-monitor"],
   ["agent-core", "command-bus"],
-  ["paid-traffic", "landing-system"],
-  ["landing-system", "lead-capture"],
-  ["lead-capture", "conversion-bridge"],
-  ["landing-system", "email-system"],
+  ["data-layer", "conversion-bridge"],
   ["conversion-bridge", "offer-network"],
   ["offer-network", "postback-relay"],
-  ["postback-relay", "attribution-core"],
-  ["attribution-core", "profit-monitor"],
+  ["postback-relay", "profit-monitor"],
   ["optimization", "profit-monitor"],
-  ["data-layer", "conversion-bridge"],
+  ["paid-traffic", "landing-system"],
+  ["landing-system", "conversion-bridge"],
   ["command-bus", "routing-engine"],
-  ["click-tracker", "conversion-bridge"],
   ["routing-engine", "postback-relay"],
-  ["routing-engine", "geo-router"],
-  ["fraud-filter", "attribution-core"],
-  ["session-sync", "data-layer"],
+  ["geo-router", "routing-engine"],
   ["model-cache", "optimization"],
   ["event-stream", "conversion-bridge"],
-  ["signal-engine", "profit-monitor"],
-  ["sms-gateway", "lead-capture"],
+  ["lead-capture", "conversion-bridge"],
+  ["attribution-core", "profit-monitor"],
 ];
 
 export const GRAB_RADIUS = 12;
@@ -74,45 +69,6 @@ function getNodeType(id: string): "core" | "primary" | "peripheral" {
   return "peripheral";
 }
 
-const ZONES = {
-  center: { x: 0.5, y: 0.5 },
-  layer1: { x: 0.5, y: 0.5 },
-  layer2: { x: 0.5, y: 0.5 },
-} as const;
-
-const NODE_TO_ZONE: Record<string, keyof typeof ZONES> = {
-  "agent-core": "center",
-  "data-layer": "layer1",
-  "conversion-bridge": "layer1",
-  "offer-network": "layer1",
-  "optimization": "layer1",
-  "command-bus": "layer1",
-  "paid-traffic": "layer2",
-  "landing-system": "layer2",
-  "lead-capture": "layer2",
-  "click-tracker": "layer2",
-  "email-system": "layer2",
-  "sms-gateway": "layer2",
-  "postback-relay": "layer2",
-  "routing-engine": "layer2",
-  "attribution-core": "layer2",
-  "profit-monitor": "layer2",
-  "geo-router": "layer2",
-  "fraud-filter": "layer2",
-  "session-sync": "layer2",
-  "model-cache": "layer2",
-  "event-stream": "layer2",
-  "signal-engine": "layer2",
-};
-
-const CENTER_BIAS: Record<string, number> = {
-  "agent-core": 1,
-  "data-layer": 0.5,
-  "conversion-bridge": 0.5,
-  "offer-network": 0.35,
-  "optimization": 0.35,
-  "command-bus": 0.3,
-};
 
 export type NodeState = {
   id: string;
@@ -128,13 +84,14 @@ export type NodeState = {
   targetY: number;
 };
 
-const BOOT_DURATION = 2400;
-const SPRING_REST_LENGTH = 140;
-const SPRING_STRENGTH = 0.02;
-const REPEL_STRENGTH = 28;
-const REPEL_RADIUS = 220;
-const ZONE_PULL = 0.016;
-const DAMPING = 0.88;
+const BOOT_DURATION = 3200;
+const SPRING_REST_LENGTH = 120;
+const SPRING_STRENGTH = 0.012;
+const REPEL_STRENGTH = 48;
+const REPEL_RADIUS = 260;
+const CENTER_ATTRACTION = 0.014;
+const BOOT_CENTER_ATTRACTION = 0.022;
+const DAMPING = 0.92;
 const BOUNDARY = 60;
 const BOUNDARY_STRENGTH = 0.8;
 const IDLE_VELOCITY_INJECT = 0.008;
@@ -143,37 +100,21 @@ const MIN_NODE_DISTANCE = 70;
 const RELEASE_VELOCITY_SCALE = 0.35;
 const IDLE_INJECT_SPEED_THRESHOLD = 0.5;
 
-function easeOutExpo(t: number): number {
-  return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t);
-}
-
-function easeOutBackOrbit(t: number): number {
-  if (t >= 1) return 1;
-  if (t < 0.72) return easeOutExpo(t / 0.72);
-  const settle = (t - 0.72) / 0.28;
-  return 1 + 0.05 * Math.sin(settle * Math.PI);
-}
-
-function placeNodesInLayers(
+function placeNodesScattered(
   width: number,
   height: number
 ): Map<string, { x: number; y: number }> {
   const map = new Map<string, { x: number; y: number }>();
   const cx = width / 2;
   const cy = height / 2;
-  const minDim = Math.min(width, height);
-  map.set("agent-core", { x: cx, y: cy });
-  const primary = NODE_TYPES.primary as readonly string[];
-  primary.forEach((id, i) => {
-    const angle = (2 * Math.PI * i) / primary.length;
-    const r = minDim * 0.16;
-    map.set(id, { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
-  });
-  const peripheral = NODE_TYPES.peripheral as readonly string[];
-  peripheral.forEach((id, i) => {
-    const angle = (2 * Math.PI * i) / peripheral.length - 0.2;
-    const r = minDim * 0.32;
-    map.set(id, { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
+  const spread = Math.min(width, height) * 0.42;
+  NODES.forEach((n) => {
+    const angle = Math.random() * Math.PI * 2;
+    const r = spread * (0.3 + Math.random() * 0.7);
+    map.set(n.id, {
+      x: cx + r * Math.cos(angle),
+      y: cy + r * Math.sin(angle),
+    });
   });
   return map;
 }
@@ -205,26 +146,26 @@ export function useNetworkGraph(
   const initStates = useCallback(() => {
     const cx = width / 2;
     const cy = height / 2;
-    const targets = placeNodesInLayers(width, height);
+    const positions = placeNodesScattered(width, height);
 
     const states = new Map<string, NodeState>();
     const radiusByType = { core: 9, primary: 5.5, peripheral: 2.5 };
     const massByType = { core: 2, primary: 1.2, peripheral: 0.7 };
     NODES.forEach((n) => {
-      const t = targets.get(n.id) ?? { x: cx, y: cy };
+      const pos = positions.get(n.id) ?? { x: cx, y: cy };
       const nodeType = getNodeType(n.id);
       states.set(n.id, {
         id: n.id,
         label: n.label,
-        x: cx,
-        y: cy,
-        vx: 0,
-        vy: 0,
+        x: pos.x,
+        y: pos.y,
+        vx: (Math.random() - 0.5) * 4,
+        vy: (Math.random() - 0.5) * 4,
         mass: massByType[nodeType],
         radius: radiusByType[nodeType],
         nodeType,
-        targetX: t.x,
-        targetY: t.y,
+        targetX: pos.x,
+        targetY: pos.y,
       });
     });
     nodeStates.current = states;
@@ -245,26 +186,16 @@ export function useNetworkGraph(
       const cx = width / 2;
       const cy = height / 2;
 
-      if (phase === "boot") {
-        if (bootStart.current === null) bootStart.current = now;
+      const centerPull = phase === "boot" && bootStart.current !== null
+        ? BOOT_CENTER_ATTRACTION
+        : CENTER_ATTRACTION;
+
+      if (phase === "boot" && bootStart.current !== null) {
         const elapsed = now - bootStart.current;
-        const t = Math.min(1, elapsed / BOOT_DURATION);
-        const eased = easeOutExpo(t);
-
-        const orbitEased = easeOutBackOrbit(t);
-        states.forEach((s) => {
-          const angle = Math.atan2(s.targetY - cy, s.targetX - cx);
-          const targetR = Math.hypot(s.targetX - cx, s.targetY - cy);
-          const r = targetR * orbitEased;
-          s.x = cx + r * Math.cos(angle);
-          s.y = cy + r * Math.sin(angle);
-        });
-
-        if (t >= 1) {
+        if (elapsed >= BOOT_DURATION) {
           setPhase("idle");
           bootStart.current = null;
         }
-        return;
       }
 
       if (releaseVelocity && releaseVelocity.nodeId !== grabbedNodeId) {
@@ -288,15 +219,8 @@ export function useNetworkGraph(
           return;
         }
 
-        const zoneName = NODE_TO_ZONE[n.id];
-        const zone = zoneName ? ZONES[zoneName] : null;
-        if (zone) {
-          const bias = CENTER_BIAS[n.id] ?? 0;
-          const tx = zone.x * (1 - bias) + 0.5 * bias;
-          const ty = zone.y * (1 - bias) + 0.5 * bias;
-          n.vx += (tx * width - n.x) * ZONE_PULL;
-          n.vy += (ty * height - n.y) * ZONE_PULL;
-        }
+        n.vx += (cx - n.x) * centerPull;
+        n.vy += (cy - n.y) * centerPull;
 
         let fx = 0;
         let fy = 0;
@@ -321,8 +245,7 @@ export function useNetworkGraph(
           const dy = n.y - o.y;
           const rawDist = Math.hypot(dx, dy) || 0.01;
           if (rawDist < REPEL_RADIUS) {
-            const sameZone = NODE_TO_ZONE[n.id] && NODE_TO_ZONE[o.id] && NODE_TO_ZONE[n.id] === NODE_TO_ZONE[o.id];
-            const strengthMultiplier = rawDist < MIN_NODE_DISTANCE ? 3.5 : sameZone ? 3.5 : 1.0;
+            const strengthMultiplier = rawDist < MIN_NODE_DISTANCE ? 4 : 1.2;
             const strength = REPEL_STRENGTH * strengthMultiplier;
             const dist = Math.max(rawDist, REPEL_MIN_DIST);
             const force = strength / (dist * dist);
