@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 
 export const NODES = [
+  { id: "agent-core", label: "agent-core" },
   { id: "traffic-agents", label: "traffic-agents" },
   { id: "creative-engine", label: "creative-engine" },
   { id: "conversion-tracking", label: "conversion-tracking" },
@@ -10,19 +11,64 @@ export const NODES = [
   { id: "optimization", label: "optimization" },
   { id: "profit-monitor", label: "profit-monitor" },
   { id: "data-router", label: "data-router" },
-  { id: "agent-core", label: "agent-core" },
+  { id: "lead-scoring", label: "lead-scoring" },
+  { id: "offer-engine", label: "offer-engine" },
+  { id: "split-tester", label: "split-tester" },
+  { id: "pixel-sync", label: "pixel-sync" },
+  { id: "funnel-builder", label: "funnel-builder" },
+  { id: "affiliate-router", label: "affiliate-router" },
+  { id: "payout-engine", label: "payout-engine" },
+  { id: "fraud-detection", label: "fraud-detection" },
+  { id: "content-rotator", label: "content-rotator" },
+  { id: "audience-sync", label: "audience-sync" },
+  { id: "bid-optimizer", label: "bid-optimizer" },
+  { id: "webhook-relay", label: "webhook-relay" },
+  { id: "crm-bridge", label: "crm-bridge" },
+  { id: "geo-router", label: "geo-router" },
+  { id: "lander-engine", label: "lander-engine" },
+  { id: "api-gateway", label: "api-gateway" },
+  { id: "session-tracker", label: "session-tracker" },
+  { id: "revenue-attribution", label: "revenue-attribution" },
+  { id: "deploy-vps", label: "deploy-vps" },
+  { id: "agent-spawner", label: "agent-spawner" },
 ] as const;
 
 export const EDGES: [string, string][] = [
   ["agent-core", "traffic-agents"],
   ["agent-core", "creative-engine"],
+  ["agent-core", "conversion-tracking"],
   ["agent-core", "optimization"],
   ["agent-core", "profit-monitor"],
+  ["agent-core", "data-router"],
+  ["agent-core", "lead-scoring"],
+  ["agent-core", "offer-engine"],
   ["traffic-agents", "conversion-tracking"],
   ["conversion-tracking", "email-sequences"],
   ["email-sequences", "optimization"],
   ["data-router", "profit-monitor"],
   ["data-router", "conversion-tracking"],
+  ["lead-scoring", "crm-bridge"],
+  ["offer-engine", "split-tester"],
+  ["pixel-sync", "conversion-tracking"],
+  ["funnel-builder", "lander-engine"],
+  ["affiliate-router", "payout-engine"],
+  ["fraud-detection", "session-tracker"],
+  ["content-rotator", "creative-engine"],
+  ["audience-sync", "bid-optimizer"],
+  ["webhook-relay", "api-gateway"],
+  ["geo-router", "affiliate-router"],
+  ["revenue-attribution", "profit-monitor"],
+  ["deploy-vps", "agent-spawner"],
+  ["pixel-sync", "audience-sync"],
+  ["split-tester", "funnel-builder"],
+  ["crm-bridge", "webhook-relay"],
+  ["lander-engine", "session-tracker"],
+  ["geo-router", "lander-engine"],
+  ["bid-optimizer", "optimization"],
+  ["fraud-detection", "payout-engine"],
+  ["api-gateway", "data-router"],
+  ["revenue-attribution", "conversion-tracking"],
+  ["deploy-vps", "api-gateway"],
 ];
 
 export const GRAB_RADIUS = 8;
@@ -46,8 +92,8 @@ const SPRING_STRENGTH = 0.018;
 const REPEL_STRENGTH = 32;
 const REPEL_RADIUS = 200;
 const DAMPING = 0.82;
-const BOUNDARY = 80;
-const BOUNDARY_STRENGTH = 0.015;
+const BOUNDARY = 60;
+const BOUNDARY_STRENGTH = 0.8;
 const IDLE_VELOCITY_INJECT = 0.015;
 const REPEL_MIN_DIST = 30;
 const RELEASE_VELOCITY_SCALE = 0.35;
@@ -57,21 +103,20 @@ function easeOutExpo(t: number): number {
   return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t);
 }
 
-function placeNodesInCircle(
+function placeNodesRandomly(
   nodes: readonly { id: string; label: string }[],
-  cx: number,
-  cy: number,
-  radius: number
+  width: number,
+  height: number
 ): Map<string, { x: number; y: number }> {
   const map = new Map<string, { x: number; y: number }>();
-  const agentCore = nodes.find((n) => n.id === "agent-core");
-  const others = nodes.filter((n) => n.id !== "agent-core");
-  if (agentCore) map.set(agentCore.id, { x: cx, y: cy });
-  others.forEach((n, i) => {
-    const angle = (2 * Math.PI * i) / others.length;
+  const marginX = width * 0.075;
+  const marginY = height * 0.075;
+  const rangeX = width * 0.85;
+  const rangeY = height * 0.85;
+  nodes.forEach((n) => {
     map.set(n.id, {
-      x: cx + radius * Math.cos(angle),
-      y: cy + radius * Math.sin(angle),
+      x: marginX + Math.random() * rangeX,
+      y: marginY + Math.random() * rangeY,
     });
   });
   return map;
@@ -104,7 +149,7 @@ export function useNetworkGraph(
   const initStates = useCallback(() => {
     const cx = width / 2;
     const cy = height / 2;
-    const targets = placeNodesInCircle(NODES, cx, cy, Math.min(width, height) * 0.45);
+    const targets = placeNodesRandomly(NODES, width, height);
 
     const states = new Map<string, NodeState>();
     NODES.forEach((n) => {
@@ -174,8 +219,8 @@ export function useNetworkGraph(
 
       nodeList.forEach((n) => {
         if (grabbedNodeId === n.id && grabPosition) {
-          n.x = grabPosition.x;
-          n.y = grabPosition.y;
+          n.x = Math.max(40, Math.min(width - 40, grabPosition.x));
+          n.y = Math.max(40, Math.min(height - 40, grabPosition.y));
           n.vx = 0;
           n.vy = 0;
           return;
