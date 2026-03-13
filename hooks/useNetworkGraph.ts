@@ -71,11 +71,11 @@ export const EDGES: [string, string][] = [
 export const GRAB_RADIUS = 8;
 
 const ZONES = {
-  deploy: { x: 0.5, y: 0.12 },
-  dataflow: { x: 0.75, y: 0.35 },
-  leadflow: { x: 0.2, y: 0.45 },
-  offerflow: { x: 0.35, y: 0.75 },
-  intelligence: { x: 0.7, y: 0.72 },
+  deploy: { x: 0.5, y: 0.08 },
+  dataflow: { x: 0.88, y: 0.3 },
+  leadflow: { x: 0.12, y: 0.45 },
+  offerflow: { x: 0.25, y: 0.82 },
+  intelligence: { x: 0.78, y: 0.78 },
 } as const;
 
 const NODE_TO_ZONE: Record<string, keyof typeof ZONES> = {
@@ -107,6 +107,13 @@ const NODE_TO_ZONE: Record<string, keyof typeof ZONES> = {
   "audience-sync": "intelligence",
 };
 
+const CENTER_BIAS: Record<string, number> = {
+  "agent-core": 0.7,
+  "data-layer": 0.5,
+  "conversion-bridge": 0.4,
+  "attribution-core": 0.3,
+};
+
 export type NodeState = {
   id: string;
   label: string;
@@ -117,6 +124,7 @@ export type NodeState = {
   mass: number;
   radius: number;
   z: number;
+  centerBias: number;
   targetX: number;
   targetY: number;
 };
@@ -132,6 +140,7 @@ const BOUNDARY = 60;
 const BOUNDARY_STRENGTH = 0.8;
 const IDLE_VELOCITY_INJECT = 0.012;
 const REPEL_MIN_DIST = 30;
+const MIN_NODE_DISTANCE = 80;
 const RELEASE_VELOCITY_SCALE = 0.35;
 const IDLE_INJECT_SPEED_THRESHOLD = 0.6;
 
@@ -192,6 +201,7 @@ export function useNetworkGraph(
       const t = targets.get(n.id) ?? { x: cx, y: cy };
       const radius = n.id === "agent-core" || n.id === "deploy-core" ? 6 : 3.5;
       const mass = n.id === "agent-core" || n.id === "deploy-core" ? 1.8 : 1.0;
+      const centerBias = CENTER_BIAS[n.id] ?? 0;
       states.set(n.id, {
         id: n.id,
         label: n.label,
@@ -202,6 +212,7 @@ export function useNetworkGraph(
         mass,
         radius,
         z: Math.random(),
+        centerBias,
         targetX: t.x,
         targetY: t.y,
       });
@@ -266,10 +277,11 @@ export function useNetworkGraph(
         const zoneName = NODE_TO_ZONE[n.id];
         const zone = zoneName ? ZONES[zoneName] : null;
         if (zone) {
-          const tx = zone.x * width;
-          const ty = zone.y * height;
-          n.vx += (tx - n.x) * ZONE_PULL;
-          n.vy += (ty - n.y) * ZONE_PULL;
+          const bias = n.centerBias ?? 0;
+          const tx = zone.x * (1 - bias) + 0.5 * bias;
+          const ty = zone.y * (1 - bias) + 0.5 * bias;
+          n.vx += (tx * width - n.x) * ZONE_PULL;
+          n.vy += (ty * height - n.y) * ZONE_PULL;
         }
 
         let fx = 0;
@@ -295,8 +307,11 @@ export function useNetworkGraph(
           const dy = n.y - o.y;
           const rawDist = Math.hypot(dx, dy) || 0.01;
           if (rawDist < REPEL_RADIUS) {
+            const sameZone = NODE_TO_ZONE[n.id] && NODE_TO_ZONE[o.id] && NODE_TO_ZONE[n.id] === NODE_TO_ZONE[o.id];
+            const strengthMultiplier = rawDist < MIN_NODE_DISTANCE ? 3.5 : sameZone ? 3.5 : 1.0;
+            const strength = REPEL_STRENGTH * strengthMultiplier;
             const dist = Math.max(rawDist, REPEL_MIN_DIST);
-            const force = REPEL_STRENGTH / (dist * dist);
+            const force = strength / (dist * dist);
             const norm = rawDist > 0 ? rawDist : 1;
             fx += (dx / norm) * force;
             fy += (dy / norm) * force;
