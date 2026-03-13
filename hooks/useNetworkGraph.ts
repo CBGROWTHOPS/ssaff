@@ -3,75 +3,109 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 
 export const NODES = [
+  { id: "deploy-core", label: "deploy-core" },
+  { id: "frontend-layer", label: "frontend-layer" },
+  { id: "data-layer", label: "data-layer" },
+  { id: "job-runner", label: "job-runner" },
+  { id: "edge-functions", label: "edge-functions" },
+  { id: "data-bridge", label: "data-bridge" },
+  { id: "postback-relay", label: "postback-relay" },
+  { id: "attribution-core", label: "attribution-core" },
+  { id: "paid-traffic", label: "paid-traffic" },
+  { id: "landing-system", label: "landing-system" },
+  { id: "lead-capture", label: "lead-capture" },
+  { id: "email-system", label: "email-system" },
+  { id: "click-tracker", label: "click-tracker" },
+  { id: "offer-network", label: "offer-network" },
+  { id: "conversion-bridge", label: "conversion-bridge" },
+  { id: "payout-router", label: "payout-router" },
+  { id: "workflow-engine", label: "workflow-engine" },
+  { id: "command-bot", label: "command-bot" },
+  { id: "alert-system", label: "alert-system" },
+  { id: "agent-orchestration", label: "agent-orchestration" },
   { id: "agent-core", label: "agent-core" },
-  { id: "traffic-agents", label: "traffic-agents" },
-  { id: "creative-engine", label: "creative-engine" },
-  { id: "conversion-tracking", label: "conversion-tracking" },
-  { id: "email-sequences", label: "email-sequences" },
   { id: "optimization", label: "optimization" },
   { id: "profit-monitor", label: "profit-monitor" },
-  { id: "data-router", label: "data-router" },
-  { id: "lead-scoring", label: "lead-scoring" },
-  { id: "offer-engine", label: "offer-engine" },
-  { id: "split-tester", label: "split-tester" },
-  { id: "pixel-sync", label: "pixel-sync" },
-  { id: "funnel-builder", label: "funnel-builder" },
-  { id: "affiliate-router", label: "affiliate-router" },
-  { id: "payout-engine", label: "payout-engine" },
   { id: "fraud-detection", label: "fraud-detection" },
-  { id: "content-rotator", label: "content-rotator" },
-  { id: "audience-sync", label: "audience-sync" },
-  { id: "bid-optimizer", label: "bid-optimizer" },
-  { id: "webhook-relay", label: "webhook-relay" },
-  { id: "crm-bridge", label: "crm-bridge" },
   { id: "geo-router", label: "geo-router" },
-  { id: "lander-engine", label: "lander-engine" },
-  { id: "api-gateway", label: "api-gateway" },
-  { id: "session-tracker", label: "session-tracker" },
-  { id: "revenue-attribution", label: "revenue-attribution" },
-  { id: "deploy-vps", label: "deploy-vps" },
-  { id: "agent-spawner", label: "agent-spawner" },
+  { id: "audience-sync", label: "audience-sync" },
 ] as const;
 
 export const EDGES: [string, string][] = [
-  ["agent-core", "traffic-agents"],
-  ["agent-core", "creative-engine"],
-  ["agent-core", "conversion-tracking"],
+  ["deploy-core", "frontend-layer"],
+  ["deploy-core", "data-layer"],
+  ["deploy-core", "job-runner"],
+  ["frontend-layer", "edge-functions"],
+  ["edge-functions", "data-layer"],
+  ["edge-functions", "data-bridge"],
+  ["data-layer", "job-runner"],
+  ["job-runner", "workflow-engine"],
+  ["paid-traffic", "landing-system"],
+  ["landing-system", "lead-capture"],
+  ["lead-capture", "data-layer"],
+  ["lead-capture", "email-system"],
+  ["lead-capture", "conversion-bridge"],
+  ["conversion-bridge", "click-tracker"],
+  ["conversion-bridge", "attribution-core"],
+  ["conversion-bridge", "alert-system"],
+  ["click-tracker", "offer-network"],
+  ["offer-network", "postback-relay"],
+  ["postback-relay", "attribution-core"],
+  ["attribution-core", "payout-router"],
+  ["attribution-core", "profit-monitor"],
+  ["workflow-engine", "command-bot"],
+  ["workflow-engine", "data-layer"],
+  ["command-bot", "alert-system"],
+  ["command-bot", "agent-orchestration"],
+  ["agent-orchestration", "agent-core"],
   ["agent-core", "optimization"],
-  ["agent-core", "profit-monitor"],
-  ["agent-core", "data-router"],
-  ["agent-core", "lead-scoring"],
-  ["agent-core", "offer-engine"],
-  ["traffic-agents", "conversion-tracking"],
-  ["conversion-tracking", "email-sequences"],
-  ["email-sequences", "optimization"],
-  ["data-router", "profit-monitor"],
-  ["data-router", "conversion-tracking"],
-  ["lead-scoring", "crm-bridge"],
-  ["offer-engine", "split-tester"],
-  ["pixel-sync", "conversion-tracking"],
-  ["funnel-builder", "lander-engine"],
-  ["affiliate-router", "payout-engine"],
-  ["fraud-detection", "session-tracker"],
-  ["content-rotator", "creative-engine"],
-  ["audience-sync", "bid-optimizer"],
-  ["webhook-relay", "api-gateway"],
-  ["geo-router", "affiliate-router"],
-  ["revenue-attribution", "profit-monitor"],
-  ["deploy-vps", "agent-spawner"],
-  ["pixel-sync", "audience-sync"],
-  ["split-tester", "funnel-builder"],
-  ["crm-bridge", "webhook-relay"],
-  ["lander-engine", "session-tracker"],
-  ["geo-router", "lander-engine"],
-  ["bid-optimizer", "optimization"],
-  ["fraud-detection", "payout-engine"],
-  ["api-gateway", "data-router"],
-  ["revenue-attribution", "conversion-tracking"],
-  ["deploy-vps", "api-gateway"],
+  ["agent-core", "fraud-detection"],
+  ["agent-core", "geo-router"],
+  ["agent-core", "audience-sync"],
+  ["optimization", "paid-traffic"],
+  ["optimization", "profit-monitor"],
+  ["fraud-detection", "conversion-bridge"],
+  ["audience-sync", "paid-traffic"],
 ];
 
 export const GRAB_RADIUS = 8;
+
+const ZONES = {
+  deploy: { x: 0.5, y: 0.12 },
+  dataflow: { x: 0.75, y: 0.35 },
+  leadflow: { x: 0.2, y: 0.45 },
+  offerflow: { x: 0.35, y: 0.75 },
+  intelligence: { x: 0.7, y: 0.72 },
+} as const;
+
+const NODE_TO_ZONE: Record<string, keyof typeof ZONES> = {
+  "deploy-core": "deploy",
+  "frontend-layer": "deploy",
+  "data-layer": "deploy",
+  "job-runner": "deploy",
+  "edge-functions": "dataflow",
+  "data-bridge": "dataflow",
+  "postback-relay": "dataflow",
+  "attribution-core": "dataflow",
+  "paid-traffic": "leadflow",
+  "landing-system": "leadflow",
+  "lead-capture": "leadflow",
+  "email-system": "leadflow",
+  "click-tracker": "offerflow",
+  "offer-network": "offerflow",
+  "conversion-bridge": "offerflow",
+  "payout-router": "offerflow",
+  "workflow-engine": "intelligence",
+  "command-bot": "intelligence",
+  "alert-system": "intelligence",
+  "agent-orchestration": "intelligence",
+  "agent-core": "intelligence",
+  "optimization": "intelligence",
+  "profit-monitor": "intelligence",
+  "fraud-detection": "intelligence",
+  "geo-router": "intelligence",
+  "audience-sync": "intelligence",
+};
 
 export type NodeState = {
   id: string;
@@ -91,10 +125,11 @@ const SPRING_REST_LENGTH = 300;
 const SPRING_STRENGTH = 0.018;
 const REPEL_STRENGTH = 32;
 const REPEL_RADIUS = 200;
-const DAMPING = 0.82;
+const ZONE_PULL = 0.018;
+const DAMPING = 0.85;
 const BOUNDARY = 60;
 const BOUNDARY_STRENGTH = 0.8;
-const IDLE_VELOCITY_INJECT = 0.015;
+const IDLE_VELOCITY_INJECT = 0.012;
 const REPEL_MIN_DIST = 30;
 const RELEASE_VELOCITY_SCALE = 0.35;
 const IDLE_INJECT_SPEED_THRESHOLD = 0.6;
@@ -154,8 +189,8 @@ export function useNetworkGraph(
     const states = new Map<string, NodeState>();
     NODES.forEach((n) => {
       const t = targets.get(n.id) ?? { x: cx, y: cy };
-      const radius = n.id === "agent-core" ? 5.5 : 3.5;
-      const mass = n.id === "agent-core" ? 1.8 : 1.0;
+      const radius = n.id === "agent-core" || n.id === "deploy-core" ? 6 : 3.5;
+      const mass = n.id === "agent-core" || n.id === "deploy-core" ? 1.8 : 1.0;
       states.set(n.id, {
         id: n.id,
         label: n.label,
@@ -224,6 +259,15 @@ export function useNetworkGraph(
           n.vx = 0;
           n.vy = 0;
           return;
+        }
+
+        const zoneName = NODE_TO_ZONE[n.id];
+        const zone = zoneName ? ZONES[zoneName] : null;
+        if (zone) {
+          const tx = zone.x * width;
+          const ty = zone.y * height;
+          n.vx += (tx - n.x) * ZONE_PULL;
+          n.vy += (ty - n.y) * ZONE_PULL;
         }
 
         let fx = 0;
