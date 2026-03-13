@@ -180,29 +180,30 @@ export default function NetworkGraph() {
 
       ctx.clearRect(0, 0, width, height);
 
-      ctx.fillStyle = "#080808";
+      ctx.fillStyle = "#060608";
       ctx.fillRect(0, 0, width, height);
 
-      const centerGlow = ctx.createRadialGradient(
-        width * 0.5, height * 0.55, 0,
-        width * 0.5, height * 0.55, height * 0.7
+      const light = ctx.createRadialGradient(
+        width * 0.45, height * 0.58, 0,
+        width * 0.45, height * 0.58,
+        height * 0.65
       );
-      centerGlow.addColorStop(0, "rgba(255, 255, 255, 0.018)");
-      centerGlow.addColorStop(0.4, "rgba(255, 255, 255, 0.006)");
-      centerGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
-      ctx.fillStyle = centerGlow;
+      light.addColorStop(0, "rgba(40, 60, 100, 0.35)");
+      light.addColorStop(0.3, "rgba(20, 35, 70, 0.15)");
+      light.addColorStop(0.7, "rgba(10, 15, 30, 0.05)");
+      light.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = light;
       ctx.fillRect(0, 0, width, height);
 
-      const topDark = ctx.createLinearGradient(0, 0, 0, height * 0.3);
-      topDark.addColorStop(0, "rgba(0, 0, 0, 0.6)");
-      topDark.addColorStop(1, "rgba(0, 0, 0, 0)");
-      ctx.fillStyle = topDark;
-      ctx.fillRect(0, 0, width, height * 0.3);
-
-      const bottomDark = ctx.createLinearGradient(0, height * 0.7, 0, height);
-      bottomDark.addColorStop(0, "rgba(0, 0, 0, 0)");
-      bottomDark.addColorStop(1, "rgba(0, 0, 0, 0.7)");
-      ctx.fillStyle = bottomDark;
+      const floor = ctx.createRadialGradient(
+        width * 0.5, height * 1.1, 0,
+        width * 0.5, height * 1.1,
+        height * 0.7
+      );
+      floor.addColorStop(0, "rgba(30, 50, 90, 0.25)");
+      floor.addColorStop(0.5, "rgba(15, 25, 50, 0.08)");
+      floor.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = floor;
       ctx.fillRect(0, 0, width, height);
 
       const getPos = (id: string) => {
@@ -281,13 +282,13 @@ export default function NetworkGraph() {
         ctx.fillText(`"${s.label}"`, s.x, s.y + 12);
       });
 
-      const gradient = ctx.createRadialGradient(
-        width / 2, height / 2, height * 0.2,
-        width / 2, height / 2, height * 0.9
+      const vignette = ctx.createRadialGradient(
+        width / 2, height / 2, height * 0.25,
+        width / 2, height / 2, height * 1.0
       );
-      gradient.addColorStop(0, "rgba(11, 11, 12, 0)");
-      gradient.addColorStop(1, "rgba(11, 11, 12, 0.75)");
-      ctx.fillStyle = gradient;
+      vignette.addColorStop(0, "rgba(0, 0, 0, 0)");
+      vignette.addColorStop(1, "rgba(0, 0, 0, 0.85)");
+      ctx.fillStyle = vignette;
       ctx.fillRect(0, 0, width, height);
     },
     [width, height, phase, nodeStates, grabbedNodeId]
