@@ -186,7 +186,7 @@ export default function NetworkGraph() {
 
       const getPos = (id: string) => {
         const s = states.get(id);
-        return s ? { x: s.x, y: s.y } : null;
+        return s ? { x: s.x, y: s.y, z: s.z } : null;
       };
 
       let edgeProgress = 1;
@@ -218,7 +218,8 @@ export default function NetworkGraph() {
         } else {
           ctx.shadowBlur = 0;
           ctx.lineWidth = 1;
-          ctx.strokeStyle = EDGE_DEFAULT;
+          const edgeAlpha = Math.min(pa.z, pb.z) * 0.18;
+          ctx.strokeStyle = `rgba(255, 255, 255, ${edgeAlpha})`;
         }
 
         ctx.beginPath();
@@ -235,30 +236,45 @@ export default function NetworkGraph() {
         ? Math.min(1, (now - bootStartRef.current) / 200)
         : 1;
 
+      const baseRadius = (r: number, z: number) => r * (0.4 + z * 0.8);
       states.forEach((s) => {
+        const r = baseRadius(s.radius, s.z);
         ctx.save();
-        ctx.globalAlpha = nodeOpacity;
+        ctx.globalAlpha = nodeOpacity * (0.25 + s.z * 0.75);
 
         ctx.shadowBlur = 0;
         ctx.fillStyle = NODE_HALO;
         ctx.beginPath();
-        ctx.arc(s.x, s.y, s.radius * 3, 0, Math.PI * 2);
+        ctx.arc(s.x, s.y, r * 3, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.shadowBlur = 16;
-        ctx.shadowColor = NODE_GLOW;
+        ctx.shadowBlur = (1 - s.z) * 12;
+        ctx.shadowColor = NODE_FILL;
         ctx.fillStyle = NODE_FILL;
         ctx.beginPath();
-        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
 
-        ctx.fillStyle = LABEL_COLOR;
-        ctx.font = '10px "Space Grotesk", monospace';
-        ctx.textAlign = "center";
-        ctx.font = "9px monospace";
-        ctx.fillText(s.label, s.x, s.y + s.radius + 12);
+        if (s.z > 0.4) {
+          ctx.save();
+          ctx.globalAlpha = nodeOpacity * (s.z - 0.4) * 0.4;
+          ctx.fillStyle = LABEL_COLOR;
+          ctx.font = "9px monospace";
+          ctx.textAlign = "center";
+          ctx.fillText(s.label, s.x, s.y + r + 12);
+          ctx.restore();
+        }
       });
+
+      const gradient = ctx.createRadialGradient(
+        width / 2, height / 2, height * 0.2,
+        width / 2, height / 2, height * 0.9
+      );
+      gradient.addColorStop(0, "rgba(11, 11, 12, 0)");
+      gradient.addColorStop(1, "rgba(11, 11, 12, 0.75)");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, width, height);
     },
     [width, height, phase, nodeStates, grabbedNodeId]
   );

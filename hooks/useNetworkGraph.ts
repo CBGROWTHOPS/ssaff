@@ -116,6 +116,7 @@ export type NodeState = {
   vy: number;
   mass: number;
   radius: number;
+  z: number;
   targetX: number;
   targetY: number;
 };
@@ -200,6 +201,7 @@ export function useNetworkGraph(
         vy: 0,
         mass,
         radius,
+        z: Math.random(),
         targetX: t.x,
         targetY: t.y,
       });
