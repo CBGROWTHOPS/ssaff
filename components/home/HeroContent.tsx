@@ -24,8 +24,20 @@ export default function HeroContent() {
         src="/logo.png"
         alt="SSAFF"
         className="block"
-        style={{ width: "min(280px, 40vw)", height: "auto" }}
+        style={{ width: "min(240px, 35vw)", height: "auto" }}
       />
+      <span
+        style={{
+          marginTop: 12,
+          fontSize: 10,
+          fontWeight: 400,
+          letterSpacing: "0.2em",
+          color: "rgba(255, 255, 255, 0.25)",
+          textTransform: "uppercase",
+        }}
+      >
+        Autonomous marketing infrastructure
+      </span>
     </div>
   );
 }

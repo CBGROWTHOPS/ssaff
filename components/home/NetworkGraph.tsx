@@ -8,9 +8,13 @@ import {
   GRAB_RADIUS,
 } from "@/hooks/useNetworkGraph";
 
-const BG = "#0f0d0b";
-const EDGE_DEFAULT = "rgba(255, 255, 255, 0.08)";
+const BG = "#060608";
+const EDGE_OPACITY = 0.1;
 const BOOT_DURATION = 1500;
+const PULSE_SPEED = 0.0015;
+const PULSE_SPAWN_INTERVAL = 4500;
+const PARALLAX_STRENGTH = 0.03;
+const HOVER_RADIUS = 24;
 
 function easeOutExpo(t: number): number {
   return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t);
@@ -55,6 +59,11 @@ function getCanvasPoint(
   };
 }
 
+interface Pulse {
+  edgeIndex: number;
+  progress: number;
+}
+
 export default function NetworkGraph() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { width, height } = useDimensions();
@@ -62,7 +71,11 @@ export default function NetworkGraph() {
   const [grabPosition, setGrabPosition] = useState<{ x: number; y: number } | null>(null);
   const [releaseVelocity, setReleaseVelocity] = useState<{ nodeId: string; vx: number; vy: number } | null>(null);
   const [cursorStyle, setCursorStyle] = useState<"default" | "grab" | "grabbing">("default");
+  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
   const mouseHistoryRef = useRef<{ x: number; y: number; t: number }[]>([]);
+  const pulsesRef = useRef<Pulse[]>([]);
+  const lastSpawnRef = useRef<number>(0);
 
   const { nodeStates, phase, tick } = useNetworkGraph(
     width,
@@ -95,10 +108,12 @@ export default function NetworkGraph() {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const { x, y } = getCanvasPoint(canvas, e.clientX, e.clientY);
+      setMousePos({ x: e.clientX, y: e.clientY });
       if (grabbedNodeId) {
         setGrabPosition({ x, y });
       } else {
-        const hit = findNodeAtPosition(nodeStates.current, x, y, GRAB_RADIUS);
+        const hit = findNodeAtPosition(nodeStates.current, x, y, HOVER_RADIUS);
+        setHoveredNodeId(hit);
         setCursorStyle(hit ? "grab" : "default");
       }
     },
@@ -127,6 +142,8 @@ export default function NetworkGraph() {
 
   const handleMouseLeave = useCallback(() => {
     setCursorStyle(grabbedNodeId ? "grabbing" : "default");
+    setHoveredNodeId(null);
+    setMousePos(null);
   }, [grabbedNodeId]);
 
   useEffect(() => {
@@ -157,6 +174,7 @@ export default function NetworkGraph() {
       }
     };
     const onGlobalMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
       if (!grabbedNodeId || !canvasRef.current) return;
       const { x, y } = getCanvasPoint(canvasRef.current, e.clientX, e.clientY);
       const now = performance.now();
@@ -166,7 +184,7 @@ export default function NetworkGraph() {
       if (h.length > 3) h.shift();
     };
     window.addEventListener("mouseup", onGlobalMouseUp);
-    if (grabbedNodeId) window.addEventListener("mousemove", onGlobalMouseMove);
+    window.addEventListener("mousemove", onGlobalMouseMove);
     return () => {
       window.removeEventListener("mouseup", onGlobalMouseUp);
       window.removeEventListener("mousemove", onGlobalMouseMove);
@@ -178,10 +196,24 @@ export default function NetworkGraph() {
       const states = nodeStates.current;
       if (states.size === 0) return;
 
-      ctx.clearRect(0, 0, width, height);
+      let parallaxX = 0;
+      let parallaxY = 0;
+      if (mousePos && width > 0 && height > 0) {
+        const cx = window.innerWidth / 2;
+        const cy = window.innerHeight / 2;
+        parallaxX = (mousePos.x - cx) * PARALLAX_STRENGTH;
+        parallaxY = (mousePos.y - cy) * PARALLAX_STRENGTH;
+        parallaxX = Math.max(-20, Math.min(20, parallaxX));
+        parallaxY = Math.max(-20, Math.min(20, parallaxY));
+      }
 
-      ctx.fillStyle = "#060608";
-      ctx.fillRect(0, 0, width, height);
+      ctx.save();
+      ctx.translate(parallaxX, parallaxY);
+
+      ctx.clearRect(-50, -50, width + 100, height + 100);
+
+      ctx.fillStyle = BG;
+      ctx.fillRect(-50, -50, width + 100, height + 100);
 
       const light = ctx.createRadialGradient(
         width * 0.45, height * 0.58, 0,
@@ -193,7 +225,7 @@ export default function NetworkGraph() {
       light.addColorStop(0.7, "rgba(10, 15, 30, 0.05)");
       light.addColorStop(1, "rgba(0, 0, 0, 0)");
       ctx.fillStyle = light;
-      ctx.fillRect(0, 0, width, height);
+      ctx.fillRect(-50, -50, width + 100, height + 100);
 
       const floor = ctx.createRadialGradient(
         width * 0.5, height * 1.1, 0,
@@ -204,12 +236,26 @@ export default function NetworkGraph() {
       floor.addColorStop(0.5, "rgba(15, 25, 50, 0.08)");
       floor.addColorStop(1, "rgba(0, 0, 0, 0)");
       ctx.fillStyle = floor;
-      ctx.fillRect(0, 0, width, height);
+      ctx.fillRect(-50, -50, width + 100, height + 100);
 
       const getPos = (id: string) => {
         const s = states.get(id);
         return s ? { x: s.x, y: s.y } : null;
       };
+
+      if (now - lastSpawnRef.current > PULSE_SPAWN_INTERVAL && EDGES.length > 0) {
+        lastSpawnRef.current = now;
+        pulsesRef.current.push({
+          edgeIndex: Math.floor(Math.random() * EDGES.length),
+          progress: 0,
+        });
+      }
+
+      const pulses = pulsesRef.current;
+      pulses.forEach((p) => {
+        p.progress += PULSE_SPEED;
+      });
+      pulsesRef.current = pulses.filter((p) => p.progress < 1);
 
       let edgeProgress = 1;
       if (phase === "boot" && bootStartRef.current !== null) {
@@ -218,7 +264,7 @@ export default function NetworkGraph() {
         edgeProgress = easeOutExpo(t);
       }
 
-      EDGES.forEach(([a, b]) => {
+      EDGES.forEach(([a, b], edgeIdx) => {
         const pa = getPos(a);
         const pb = getPos(b);
         if (!pa || !pb) return;
@@ -240,7 +286,11 @@ export default function NetworkGraph() {
         } else {
           ctx.shadowBlur = 0;
           ctx.lineWidth = 1;
-          ctx.strokeStyle = EDGE_DEFAULT;
+          const grad = ctx.createLinearGradient(pa.x, pa.y, pb.x, pb.y);
+          grad.addColorStop(0, `rgba(120, 160, 220, ${EDGE_OPACITY * 0.3})`);
+          grad.addColorStop(0.5, `rgba(150, 190, 255, ${EDGE_OPACITY})`);
+          grad.addColorStop(1, `rgba(120, 160, 220, ${EDGE_OPACITY * 0.3})`);
+          ctx.strokeStyle = grad;
         }
 
         ctx.beginPath();
@@ -251,35 +301,53 @@ export default function NetworkGraph() {
         ctx.lineTo(endX, endY);
         ctx.stroke();
       });
+
+      pulses.forEach((p) => {
+        const [a, b] = EDGES[p.edgeIndex];
+        const pa = getPos(a);
+        const pb = getPos(b);
+        if (!pa || !pb) return;
+        const px = pa.x + (pb.x - pa.x) * p.progress;
+        const py = pa.y + (pb.y - pa.y) * p.progress;
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = "rgba(100, 180, 255, 0.6)";
+        ctx.fillStyle = "rgba(180, 220, 255, 0.6)";
+        ctx.beginPath();
+        ctx.arc(px, py, 2, 0, Math.PI * 2);
+        ctx.fill();
+      });
       ctx.shadowBlur = 0;
 
       const nodeOpacity = phase === "boot" && bootStartRef.current !== null
         ? Math.min(1, (now - bootStartRef.current) / 200)
         : 1;
 
+      const breathingScale = 1 + Math.sin(now * 0.0012) * 0.03;
+
       states.forEach((s) => {
-        const isAgentCore = s.id === "agent-core";
+        const isCore = s.nodeType === "core";
+        const isSystem = s.nodeType === "system";
+        const r = isCore ? s.radius * breathingScale : s.radius;
+
         ctx.save();
         ctx.globalAlpha = nodeOpacity;
 
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = "rgba(255, 255, 255, 0.04)";
+        const opacity = isCore ? 1 : isSystem ? 0.7 : 0.45;
+        const glow = isCore ? 18 : isSystem ? 10 : 5;
+        ctx.shadowBlur = glow;
+        ctx.shadowColor = `rgba(255, 255, 255, ${isCore ? 0.35 : 0.15})`;
+        ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
         ctx.beginPath();
-        ctx.arc(s.x, s.y, s.radius * 3, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.shadowBlur = isAgentCore ? 14 : 8;
-        ctx.shadowColor = isAgentCore ? "rgba(255, 255, 255, 0.4)" : "rgba(255, 255, 255, 0.25)";
-        ctx.fillStyle = isAgentCore ? "rgba(255, 255, 255, 1)" : "rgba(255, 255, 255, 0.85)";
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
 
-        ctx.fillStyle = isAgentCore ? "rgba(255, 255, 255, 0.7)" : "rgba(255, 255, 255, 0.4)";
-        ctx.font = "10px system-ui, sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(`"${s.label}"`, s.x, s.y + 12);
+        if (hoveredNodeId === s.id || grabbedNodeId === s.id) {
+          ctx.fillStyle = isCore ? "rgba(255, 255, 255, 0.8)" : "rgba(255, 255, 255, 0.5)";
+          ctx.font = "10px system-ui, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(`"${s.label}"`, s.x, s.y + r + 14);
+        }
       });
 
       const vignette = ctx.createRadialGradient(
@@ -289,9 +357,11 @@ export default function NetworkGraph() {
       vignette.addColorStop(0, "rgba(0, 0, 0, 0)");
       vignette.addColorStop(1, "rgba(0, 0, 0, 0.85)");
       ctx.fillStyle = vignette;
-      ctx.fillRect(0, 0, width, height);
+      ctx.fillRect(-50, -50, width + 100, height + 100);
+
+      ctx.restore();
     },
-    [width, height, phase, nodeStates, grabbedNodeId]
+    [width, height, phase, nodeStates, grabbedNodeId, hoveredNodeId, mousePos]
   );
 
   useEffect(() => {

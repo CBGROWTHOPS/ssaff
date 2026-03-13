@@ -3,99 +3,74 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 
 export const NODES = [
-  { id: "deploy-core", label: "deploy-core" },
-  { id: "frontend-layer", label: "frontend-layer" },
+  { id: "agent-core", label: "agent-core" },
   { id: "data-layer", label: "data-layer" },
-  { id: "job-runner", label: "job-runner" },
-  { id: "edge-functions", label: "edge-functions" },
-  { id: "data-bridge", label: "data-bridge" },
-  { id: "postback-relay", label: "postback-relay" },
-  { id: "attribution-core", label: "attribution-core" },
+  { id: "conversion-bridge", label: "conversion-bridge" },
+  { id: "offer-network", label: "offer-network" },
+  { id: "optimization", label: "optimization" },
   { id: "paid-traffic", label: "paid-traffic" },
   { id: "landing-system", label: "landing-system" },
-  { id: "lead-capture", label: "lead-capture" },
   { id: "email-system", label: "email-system" },
   { id: "click-tracker", label: "click-tracker" },
-  { id: "offer-network", label: "offer-network" },
-  { id: "conversion-bridge", label: "conversion-bridge" },
-  { id: "payout-router", label: "payout-router" },
-  { id: "workflow-engine", label: "workflow-engine" },
-  { id: "command-bot", label: "command-bot" },
-  { id: "alert-system", label: "alert-system" },
-  { id: "agent-orchestration", label: "agent-orchestration" },
-  { id: "agent-core", label: "agent-core" },
-  { id: "optimization", label: "optimization" },
+  { id: "postback-relay", label: "postback-relay" },
   { id: "profit-monitor", label: "profit-monitor" },
-  { id: "fraud-detection", label: "fraud-detection" },
-  { id: "geo-router", label: "geo-router" },
-  { id: "audience-sync", label: "audience-sync" },
 ] as const;
 
 export const EDGES: [string, string][] = [
   ["agent-core", "data-layer"],
   ["agent-core", "conversion-bridge"],
-  ["agent-core", "attribution-core"],
-  ["agent-core", "profit-monitor"],
-  ["agent-core", "deploy-core"],
+  ["agent-core", "offer-network"],
+  ["agent-core", "optimization"],
   ["paid-traffic", "landing-system"],
-  ["landing-system", "lead-capture"],
-  ["lead-capture", "conversion-bridge"],
+  ["landing-system", "conversion-bridge"],
+  ["landing-system", "email-system"],
   ["conversion-bridge", "offer-network"],
   ["offer-network", "postback-relay"],
-  ["postback-relay", "attribution-core"],
-  ["workflow-engine", "command-bot"],
-  ["command-bot", "agent-orchestration"],
-  ["agent-orchestration", "agent-core"],
-  ["deploy-core", "data-layer"],
-  ["data-layer", "edge-functions"],
-  ["attribution-core", "profit-monitor"],
+  ["postback-relay", "profit-monitor"],
+  ["optimization", "profit-monitor"],
+  ["data-layer", "conversion-bridge"],
 ];
 
-export const GRAB_RADIUS = 8;
+export const GRAB_RADIUS = 12;
+
+export const NODE_TYPES = {
+  core: ["agent-core"],
+  system: ["data-layer", "conversion-bridge", "offer-network", "optimization"],
+  peripheral: ["paid-traffic", "landing-system", "email-system", "click-tracker", "postback-relay", "profit-monitor"],
+} as const;
+
+function getNodeType(id: string): "core" | "system" | "peripheral" {
+  if (NODE_TYPES.core.includes(id)) return "core";
+  if (NODE_TYPES.system.includes(id)) return "system";
+  return "peripheral";
+}
 
 const ZONES = {
-  deploy: { x: 0.5, y: 0.08 },
-  dataflow: { x: 0.88, y: 0.3 },
-  leadflow: { x: 0.12, y: 0.45 },
-  offerflow: { x: 0.25, y: 0.82 },
-  intelligence: { x: 0.78, y: 0.65 },
-  operations: { x: 0.88, y: 0.85 },
+  center: { x: 0.5, y: 0.5 },
+  layer1: { x: 0.5, y: 0.5 },
+  layer2: { x: 0.5, y: 0.5 },
 } as const;
 
 const NODE_TO_ZONE: Record<string, keyof typeof ZONES> = {
-  "deploy-core": "deploy",
-  "frontend-layer": "deploy",
-  "data-layer": "deploy",
-  "job-runner": "deploy",
-  "edge-functions": "dataflow",
-  "data-bridge": "dataflow",
-  "postback-relay": "dataflow",
-  "attribution-core": "dataflow",
-  "paid-traffic": "leadflow",
-  "landing-system": "leadflow",
-  "lead-capture": "leadflow",
-  "email-system": "leadflow",
-  "click-tracker": "offerflow",
-  "offer-network": "offerflow",
-  "conversion-bridge": "offerflow",
-  "payout-router": "offerflow",
-  "workflow-engine": "intelligence",
-  "command-bot": "intelligence",
-  "agent-orchestration": "intelligence",
-  "agent-core": "intelligence",
-  "optimization": "intelligence",
-  "profit-monitor": "operations",
-  "fraud-detection": "operations",
-  "geo-router": "operations",
-  "audience-sync": "operations",
-  "alert-system": "operations",
+  "agent-core": "center",
+  "data-layer": "layer1",
+  "conversion-bridge": "layer1",
+  "offer-network": "layer1",
+  "optimization": "layer1",
+  "paid-traffic": "layer2",
+  "landing-system": "layer2",
+  "email-system": "layer2",
+  "click-tracker": "layer2",
+  "postback-relay": "layer2",
+  "profit-monitor": "layer2",
 };
 
 const CENTER_BIAS: Record<string, number> = {
-  "agent-core": 0.7,
+  "agent-core": 1,
   "data-layer": 0.5,
-  "conversion-bridge": 0.4,
-  "attribution-core": 0.3,
+  "conversion-bridge": 0.5,
+  "offer-network": 0.3,
+  "optimization": 0.3,
 };
 
 export type NodeState = {
@@ -107,46 +82,49 @@ export type NodeState = {
   vy: number;
   mass: number;
   radius: number;
-  z: number;
-  centerBias: number;
+  nodeType: "core" | "system" | "peripheral";
   targetX: number;
   targetY: number;
 };
 
 const BOOT_DURATION = 1500;
-const SPRING_REST_LENGTH = 300;
-const SPRING_STRENGTH = 0.018;
-const REPEL_STRENGTH = 32;
-const REPEL_RADIUS = 200;
-const ZONE_PULL = 0.018;
-const DAMPING = 0.85;
+const SPRING_REST_LENGTH = 180;
+const SPRING_STRENGTH = 0.02;
+const REPEL_STRENGTH = 28;
+const REPEL_RADIUS = 220;
+const ZONE_PULL = 0.016;
+const DAMPING = 0.88;
 const BOUNDARY = 60;
 const BOUNDARY_STRENGTH = 0.8;
-const IDLE_VELOCITY_INJECT = 0.012;
-const REPEL_MIN_DIST = 30;
-const MIN_NODE_DISTANCE = 80;
+const IDLE_VELOCITY_INJECT = 0.008;
+const REPEL_MIN_DIST = 25;
+const MIN_NODE_DISTANCE = 70;
 const RELEASE_VELOCITY_SCALE = 0.35;
-const IDLE_INJECT_SPEED_THRESHOLD = 0.6;
+const IDLE_INJECT_SPEED_THRESHOLD = 0.5;
 
 function easeOutExpo(t: number): number {
   return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t);
 }
 
-function placeNodesRandomly(
-  nodes: readonly { id: string; label: string }[],
+function placeNodesInLayers(
   width: number,
   height: number
 ): Map<string, { x: number; y: number }> {
   const map = new Map<string, { x: number; y: number }>();
-  const marginX = width * 0.075;
-  const marginY = height * 0.075;
-  const rangeX = width * 0.85;
-  const rangeY = height * 0.85;
-  nodes.forEach((n) => {
-    map.set(n.id, {
-      x: marginX + Math.random() * rangeX,
-      y: marginY + Math.random() * rangeY,
-    });
+  const cx = width / 2;
+  const cy = height / 2;
+  map.set("agent-core", { x: cx, y: cy });
+  const layer1 = NODE_TYPES.system;
+  layer1.forEach((id, i) => {
+    const angle = (2 * Math.PI * i) / layer1.length;
+    const r = Math.min(width, height) * 0.22;
+    map.set(id, { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
+  });
+  const layer2 = NODE_TYPES.peripheral;
+  layer2.forEach((id, i) => {
+    const angle = (2 * Math.PI * i) / layer2.length - 0.3;
+    const r = Math.min(width, height) * 0.38;
+    map.set(id, { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
   });
   return map;
 }
@@ -178,14 +156,14 @@ export function useNetworkGraph(
   const initStates = useCallback(() => {
     const cx = width / 2;
     const cy = height / 2;
-    const targets = placeNodesRandomly(NODES, width, height);
+    const targets = placeNodesInLayers(width, height);
 
     const states = new Map<string, NodeState>();
+    const radiusByType = { core: 8, system: 4, peripheral: 2.5 };
+    const massByType = { core: 2, system: 1.2, peripheral: 0.8 };
     NODES.forEach((n) => {
       const t = targets.get(n.id) ?? { x: cx, y: cy };
-      const radius = n.id === "agent-core" ? 7 : 3.5;
-      const mass = n.id === "agent-core" || n.id === "deploy-core" ? 1.8 : 1.0;
-      const centerBias = CENTER_BIAS[n.id] ?? 0;
+      const nodeType = getNodeType(n.id);
       states.set(n.id, {
         id: n.id,
         label: n.label,
@@ -193,10 +171,9 @@ export function useNetworkGraph(
         y: cy,
         vx: 0,
         vy: 0,
-        mass,
-        radius,
-        z: Math.random(),
-        centerBias,
+        mass: massByType[nodeType],
+        radius: radiusByType[nodeType],
+        nodeType,
         targetX: t.x,
         targetY: t.y,
       });
@@ -261,7 +238,7 @@ export function useNetworkGraph(
         const zoneName = NODE_TO_ZONE[n.id];
         const zone = zoneName ? ZONES[zoneName] : null;
         if (zone) {
-          const bias = n.centerBias ?? 0;
+          const bias = CENTER_BIAS[n.id] ?? 0;
           const tx = zone.x * (1 - bias) + 0.5 * bias;
           const ty = zone.y * (1 - bias) + 0.5 * bias;
           n.vx += (tx * width - n.x) * ZONE_PULL;
