@@ -58,7 +58,8 @@ const ZONES = {
   dataflow: { x: 0.88, y: 0.3 },
   leadflow: { x: 0.12, y: 0.45 },
   offerflow: { x: 0.25, y: 0.82 },
-  intelligence: { x: 0.78, y: 0.78 },
+  intelligence: { x: 0.78, y: 0.65 },
+  operations: { x: 0.88, y: 0.85 },
 } as const;
 
 const NODE_TO_ZONE: Record<string, keyof typeof ZONES> = {
@@ -80,14 +81,14 @@ const NODE_TO_ZONE: Record<string, keyof typeof ZONES> = {
   "payout-router": "offerflow",
   "workflow-engine": "intelligence",
   "command-bot": "intelligence",
-  "alert-system": "intelligence",
   "agent-orchestration": "intelligence",
   "agent-core": "intelligence",
   "optimization": "intelligence",
-  "profit-monitor": "intelligence",
-  "fraud-detection": "intelligence",
-  "geo-router": "intelligence",
-  "audience-sync": "intelligence",
+  "profit-monitor": "operations",
+  "fraud-detection": "operations",
+  "geo-router": "operations",
+  "audience-sync": "operations",
+  "alert-system": "operations",
 };
 
 const CENTER_BIAS: Record<string, number> = {

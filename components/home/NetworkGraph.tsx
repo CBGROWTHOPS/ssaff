@@ -180,26 +180,29 @@ export default function NetworkGraph() {
 
       ctx.clearRect(0, 0, width, height);
 
-      ctx.fillStyle = "#0b0b0c";
+      ctx.fillStyle = "#080808";
       ctx.fillRect(0, 0, width, height);
 
-      const fogRadius = height * 0.35;
-      const fog1 = ctx.createRadialGradient(width * 0.15, height * 0.15, 0, width * 0.15, height * 0.15, fogRadius);
-      fog1.addColorStop(0, "rgba(20, 15, 10, 0)");
-      fog1.addColorStop(1, "rgba(8, 8, 10, 0.6)");
-      ctx.fillStyle = fog1;
+      const centerGlow = ctx.createRadialGradient(
+        width * 0.5, height * 0.55, 0,
+        width * 0.5, height * 0.55, height * 0.7
+      );
+      centerGlow.addColorStop(0, "rgba(255, 255, 255, 0.018)");
+      centerGlow.addColorStop(0.4, "rgba(255, 255, 255, 0.006)");
+      centerGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = centerGlow;
       ctx.fillRect(0, 0, width, height);
 
-      const fog2 = ctx.createRadialGradient(width * 0.85, height * 0.85, 0, width * 0.85, height * 0.85, fogRadius);
-      fog2.addColorStop(0, "rgba(20, 15, 10, 0)");
-      fog2.addColorStop(1, "rgba(8, 8, 10, 0.6)");
-      ctx.fillStyle = fog2;
-      ctx.fillRect(0, 0, width, height);
+      const topDark = ctx.createLinearGradient(0, 0, 0, height * 0.3);
+      topDark.addColorStop(0, "rgba(0, 0, 0, 0.6)");
+      topDark.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = topDark;
+      ctx.fillRect(0, 0, width, height * 0.3);
 
-      const fog3 = ctx.createRadialGradient(width * 0.7, height * 0.5, 0, width * 0.7, height * 0.5, fogRadius);
-      fog3.addColorStop(0, "rgba(20, 15, 10, 0)");
-      fog3.addColorStop(1, "rgba(8, 8, 10, 0.6)");
-      ctx.fillStyle = fog3;
+      const bottomDark = ctx.createLinearGradient(0, height * 0.7, 0, height);
+      bottomDark.addColorStop(0, "rgba(0, 0, 0, 0)");
+      bottomDark.addColorStop(1, "rgba(0, 0, 0, 0.7)");
+      ctx.fillStyle = bottomDark;
       ctx.fillRect(0, 0, width, height);
 
       const getPos = (id: string) => {
