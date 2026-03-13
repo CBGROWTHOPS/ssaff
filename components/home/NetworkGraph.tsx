@@ -10,8 +10,9 @@ import {
 } from "@/hooks/useNetworkGraph";
 
 const BG = "#060608";
-const EDGE_OPACITY = 0.08;
-const BOOT_DURATION = 3500;
+const EDGE_OPACITY = 0.05;
+const EDGE_WIDTH = 0.6;
+const BOOT_DURATION = 6000;
 const PULSE_SPEED = 0.0015;
 const PULSE_SPAWN_INTERVAL = 4500;
 const PARALLAX_STRENGTH = 0.03;
@@ -286,7 +287,7 @@ export default function NetworkGraph() {
           ctx.strokeStyle = gradient;
         } else {
           ctx.shadowBlur = 0;
-          ctx.lineWidth = 0.6;
+          ctx.lineWidth = EDGE_WIDTH;
           const grad = ctx.createLinearGradient(pa.x, pa.y, pb.x, pb.y);
           grad.addColorStop(0, `rgba(120, 160, 220, ${EDGE_OPACITY * 0.3})`);
           grad.addColorStop(0.5, `rgba(150, 190, 255, ${EDGE_OPACITY})`);
@@ -335,8 +336,8 @@ export default function NetworkGraph() {
         ctx.save();
         ctx.globalAlpha = nodeOpacity;
 
-        const opacity = isCore ? breathingOpacity : isPrimary ? 0.8 : 0.35;
-        const glow = isCore ? 22 : isPrimary ? 10 : 3;
+        const opacity = isCore ? breathingOpacity : isPrimary ? 0.8 : 0.25;
+        const glow = isCore ? 22 : isPrimary ? 10 : 1.5;
         ctx.shadowBlur = glow;
         ctx.shadowColor = `rgba(255, 255, 255, ${isCore ? 0.4 : isPrimary ? 0.18 : 0.08})`;
         ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;

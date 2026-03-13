@@ -27,6 +27,7 @@ export const NODES = [
   { id: "signal-engine", label: "signal-engine" },
 ] as const;
 
+// Structure: agent-core→most, primary 2–3 each, peripheral 1 each
 export const EDGES: [string, string][] = [
   ["agent-core", "data-layer"],
   ["agent-core", "conversion-bridge"],
@@ -34,27 +35,33 @@ export const EDGES: [string, string][] = [
   ["agent-core", "optimization"],
   ["agent-core", "profit-monitor"],
   ["agent-core", "command-bus"],
+  ["agent-core", "postback-relay"],
+  ["agent-core", "landing-system"],
+  ["agent-core", "lead-capture"],
+  ["agent-core", "event-stream"],
   ["data-layer", "conversion-bridge"],
   ["conversion-bridge", "offer-network"],
   ["offer-network", "postback-relay"],
   ["postback-relay", "profit-monitor"],
   ["optimization", "profit-monitor"],
-  ["paid-traffic", "landing-system"],
-  ["landing-system", "conversion-bridge"],
   ["command-bus", "routing-engine"],
   ["routing-engine", "postback-relay"],
-  ["geo-router", "routing-engine"],
   ["model-cache", "optimization"],
-  ["event-stream", "conversion-bridge"],
-  ["lead-capture", "conversion-bridge"],
   ["attribution-core", "profit-monitor"],
+  ["geo-router", "routing-engine"],
+  ["paid-traffic", "landing-system"],
+  ["click-tracker", "agent-core"],
+  ["email-system", "agent-core"],
+  ["sms-gateway", "agent-core"],
+  ["fraud-filter", "routing-engine"],
+  ["session-sync", "data-layer"],
+  ["signal-engine", "agent-core"],
 ];
 
 export const GRAB_RADIUS = 12;
 
 export const LABELS_ALWAYS_VISIBLE: readonly string[] = [
   "agent-core", "data-layer", "conversion-bridge",
-  "offer-network", "optimization", "profit-monitor",
 ];
 
 export const NODE_TYPES = {
@@ -84,21 +91,25 @@ export type NodeState = {
   targetY: number;
 };
 
-const BOOT_DURATION = 3500;
-const SPRING_REST_LENGTH = 120;
-const SPRING_STRENGTH = 0.01;
-const REPEL_STRENGTH = 48;
-const REPEL_RADIUS = 260;
-const CENTER_ATTRACTION = 0.012;
-const BOOT_CENTER_ATTRACTION = 0.008;
-const DAMPING = 0.87;
+// Formation timing: 0–1.5s drift, 1.5–4s ramp gravity, 4–6s stabilize
+const BOOT_DURATION = 6000;
+const DRIFT_UNTIL = 1500;      // ms with near-zero center gravity
+const RAMP_UNTIL = 4000;       // ms when gravity reaches max
+const CENTER_ATTRACTION_MIN = 0.02;
+const CENTER_ATTRACTION_MAX = 0.08;
+const SPRING_REST_LENGTH = 130;
+const SPRING_STRENGTH = 0.009;
+const REPEL_STRENGTH = 72;     // looser cluster (molecule not knot)
+const REPEL_RADIUS = 280;
+const CENTER_ATTRACTION = 0.06;
+const DAMPING = 0.9;
 const BOUNDARY = 60;
 const BOUNDARY_STRENGTH = 0.8;
-const IDLE_VELOCITY_INJECT = 0.008;
-const REPEL_MIN_DIST = 25;
-const MIN_NODE_DISTANCE = 70;
+const IDLE_VELOCITY_INJECT = 0.002;   // 1–2 px every few seconds
+const REPEL_MIN_DIST = 28;
+const MIN_NODE_DISTANCE = 75;
 const RELEASE_VELOCITY_SCALE = 0.35;
-const IDLE_INJECT_SPEED_THRESHOLD = 0.5;
+const IDLE_INJECT_SPEED_THRESHOLD = 0.15;  // inject when nearly still
 
 function placeNodesScattered(
   width: number,
@@ -149,7 +160,7 @@ export function useNetworkGraph(
     const positions = placeNodesScattered(width, height);
 
     const states = new Map<string, NodeState>();
-    const radiusByType = { core: 9, primary: 5.5, peripheral: 2.5 };
+    const radiusByType = { core: 8, primary: 5, peripheral: 2.5 };
     const massByType = { core: 2, primary: 1.2, peripheral: 0.7 };
     NODES.forEach((n) => {
       const pos = positions.get(n.id) ?? { x: cx, y: cy };
@@ -186,16 +197,24 @@ export function useNetworkGraph(
       const cx = width / 2;
       const cy = height / 2;
 
-      const centerPull = phase === "boot" && bootStart.current !== null
-        ? BOOT_CENTER_ATTRACTION
-        : CENTER_ATTRACTION;
+      if (phase === "boot" && bootStart.current === null) bootStart.current = now;
+      const bootElapsed = phase === "boot" && bootStart.current !== null ? now - bootStart.current : 0;
 
+      let centerPull = CENTER_ATTRACTION;
       if (phase === "boot" && bootStart.current !== null) {
-        const elapsed = now - bootStart.current;
-        if (elapsed >= BOOT_DURATION) {
-          setPhase("idle");
-          bootStart.current = null;
+        if (bootElapsed < DRIFT_UNTIL) {
+          centerPull = 0.005;  // near-zero, drift randomly
+        } else if (bootElapsed < RAMP_UNTIL) {
+          const t = (bootElapsed - DRIFT_UNTIL) / (RAMP_UNTIL - DRIFT_UNTIL);
+          centerPull = CENTER_ATTRACTION_MIN + t * (CENTER_ATTRACTION_MAX - CENTER_ATTRACTION_MIN);
+        } else {
+          centerPull = CENTER_ATTRACTION_MAX;
         }
+      }
+
+      if (phase === "boot" && bootElapsed >= BOOT_DURATION) {
+        setPhase("idle");
+        bootStart.current = null;
       }
 
       if (releaseVelocity && releaseVelocity.nodeId !== grabbedNodeId) {
@@ -263,7 +282,13 @@ export function useNetworkGraph(
         n.vx = n.vx * DAMPING + fx / n.mass;
         n.vy = n.vy * DAMPING + fy / n.mass;
         const speed = Math.hypot(n.vx, n.vy);
-        if (speed < IDLE_INJECT_SPEED_THRESHOLD) {
+        const elapsed = bootElapsed;
+        const inDriftPhase = phase === "boot" && elapsed < DRIFT_UNTIL;
+        const inIdlePhase = phase === "idle" && speed < IDLE_INJECT_SPEED_THRESHOLD;
+        if (inDriftPhase) {
+          n.vx += (Math.random() - 0.5) * 0.12;
+          n.vy += (Math.random() - 0.5) * 0.12;
+        } else if (inIdlePhase) {
           n.vx += (Math.random() - 0.5) * 2 * IDLE_VELOCITY_INJECT;
           n.vy += (Math.random() - 0.5) * 2 * IDLE_VELOCITY_INJECT;
         }
