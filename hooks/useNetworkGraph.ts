@@ -40,8 +40,8 @@ export const NODE_TYPES = {
 } as const;
 
 function getNodeType(id: string): "core" | "system" | "peripheral" {
-  if (NODE_TYPES.core.includes(id)) return "core";
-  if (NODE_TYPES.system.includes(id)) return "system";
+  if ((NODE_TYPES.core as readonly string[]).includes(id)) return "core";
+  if ((NODE_TYPES.system as readonly string[]).includes(id)) return "system";
   return "peripheral";
 }
 
