@@ -9,11 +9,7 @@ import {
 } from "@/hooks/useNetworkGraph";
 
 const BG = "#0f0d0b";
-const NODE_FILL = "#d4915a";
-const NODE_GLOW = "rgba(220, 140, 70, 0.4)";
-const NODE_HALO = "rgba(200, 120, 50, 0.06)";
 const EDGE_DEFAULT = "rgba(255, 255, 255, 0.08)";
-const LABEL_COLOR = "rgba(255, 255, 255, 0.22)";
 const BOOT_DURATION = 1500;
 
 function easeOutExpo(t: number): number {
@@ -258,29 +254,25 @@ export default function NetworkGraph() {
         : 1;
 
       states.forEach((s) => {
+        const isAgentCore = s.id === "agent-core";
         ctx.save();
         ctx.globalAlpha = nodeOpacity;
 
         ctx.shadowBlur = 0;
-        ctx.fillStyle = NODE_HALO;
+        ctx.fillStyle = "rgba(255, 255, 255, 0.04)";
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.radius * 3, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.shadowBlur = 16;
-        ctx.shadowColor = NODE_GLOW;
-        ctx.fillStyle = NODE_FILL;
+        ctx.shadowBlur = isAgentCore ? 14 : 8;
+        ctx.shadowColor = isAgentCore ? "rgba(255, 255, 255, 0.4)" : "rgba(255, 255, 255, 0.25)";
+        ctx.fillStyle = isAgentCore ? "rgba(255, 255, 255, 1)" : "rgba(255, 255, 255, 0.85)";
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
         ctx.fill();
-        if (s.id === "agent-core" || s.id === "deploy-core") {
-          ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
-          ctx.lineWidth = 1;
-          ctx.stroke();
-        }
         ctx.restore();
 
-        ctx.fillStyle = "rgba(200, 160, 100, 0.55)";
+        ctx.fillStyle = isAgentCore ? "rgba(255, 255, 255, 0.7)" : "rgba(255, 255, 255, 0.4)";
         ctx.font = "10px system-ui, sans-serif";
         ctx.textAlign = "center";
         ctx.fillText(`"${s.label}"`, s.x, s.y + 12);

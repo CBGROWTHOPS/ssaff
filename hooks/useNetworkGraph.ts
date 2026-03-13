@@ -32,40 +32,23 @@ export const NODES = [
 ] as const;
 
 export const EDGES: [string, string][] = [
-  ["deploy-core", "frontend-layer"],
-  ["deploy-core", "data-layer"],
-  ["deploy-core", "job-runner"],
-  ["frontend-layer", "edge-functions"],
-  ["edge-functions", "data-layer"],
-  ["edge-functions", "data-bridge"],
-  ["data-layer", "job-runner"],
-  ["job-runner", "workflow-engine"],
+  ["agent-core", "data-layer"],
+  ["agent-core", "conversion-bridge"],
+  ["agent-core", "attribution-core"],
+  ["agent-core", "profit-monitor"],
+  ["agent-core", "deploy-core"],
   ["paid-traffic", "landing-system"],
   ["landing-system", "lead-capture"],
-  ["lead-capture", "data-layer"],
-  ["lead-capture", "email-system"],
   ["lead-capture", "conversion-bridge"],
-  ["conversion-bridge", "click-tracker"],
-  ["conversion-bridge", "attribution-core"],
-  ["conversion-bridge", "alert-system"],
-  ["click-tracker", "offer-network"],
+  ["conversion-bridge", "offer-network"],
   ["offer-network", "postback-relay"],
   ["postback-relay", "attribution-core"],
-  ["attribution-core", "payout-router"],
-  ["attribution-core", "profit-monitor"],
   ["workflow-engine", "command-bot"],
-  ["workflow-engine", "data-layer"],
-  ["command-bot", "alert-system"],
   ["command-bot", "agent-orchestration"],
   ["agent-orchestration", "agent-core"],
-  ["agent-core", "optimization"],
-  ["agent-core", "fraud-detection"],
-  ["agent-core", "geo-router"],
-  ["agent-core", "audience-sync"],
-  ["optimization", "paid-traffic"],
-  ["optimization", "profit-monitor"],
-  ["fraud-detection", "conversion-bridge"],
-  ["audience-sync", "paid-traffic"],
+  ["deploy-core", "data-layer"],
+  ["data-layer", "edge-functions"],
+  ["attribution-core", "profit-monitor"],
 ];
 
 export const GRAB_RADIUS = 8;
@@ -199,7 +182,7 @@ export function useNetworkGraph(
     const states = new Map<string, NodeState>();
     NODES.forEach((n) => {
       const t = targets.get(n.id) ?? { x: cx, y: cy };
-      const radius = n.id === "agent-core" || n.id === "deploy-core" ? 6 : 3.5;
+      const radius = n.id === "agent-core" ? 7 : 3.5;
       const mass = n.id === "agent-core" || n.id === "deploy-core" ? 1.8 : 1.0;
       const centerBias = CENTER_BIAS[n.id] ?? 0;
       states.set(n.id, {
