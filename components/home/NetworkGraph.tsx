@@ -184,9 +184,31 @@ export default function NetworkGraph() {
 
       ctx.clearRect(0, 0, width, height);
 
+      ctx.fillStyle = "#0b0b0c";
+      ctx.fillRect(0, 0, width, height);
+
+      const fogRadius = height * 0.35;
+      const fog1 = ctx.createRadialGradient(width * 0.15, height * 0.15, 0, width * 0.15, height * 0.15, fogRadius);
+      fog1.addColorStop(0, "rgba(20, 15, 10, 0)");
+      fog1.addColorStop(1, "rgba(8, 8, 10, 0.6)");
+      ctx.fillStyle = fog1;
+      ctx.fillRect(0, 0, width, height);
+
+      const fog2 = ctx.createRadialGradient(width * 0.85, height * 0.85, 0, width * 0.85, height * 0.85, fogRadius);
+      fog2.addColorStop(0, "rgba(20, 15, 10, 0)");
+      fog2.addColorStop(1, "rgba(8, 8, 10, 0.6)");
+      ctx.fillStyle = fog2;
+      ctx.fillRect(0, 0, width, height);
+
+      const fog3 = ctx.createRadialGradient(width * 0.7, height * 0.5, 0, width * 0.7, height * 0.5, fogRadius);
+      fog3.addColorStop(0, "rgba(20, 15, 10, 0)");
+      fog3.addColorStop(1, "rgba(8, 8, 10, 0.6)");
+      ctx.fillStyle = fog3;
+      ctx.fillRect(0, 0, width, height);
+
       const getPos = (id: string) => {
         const s = states.get(id);
-        return s ? { x: s.x, y: s.y, z: s.z } : null;
+        return s ? { x: s.x, y: s.y } : null;
       };
 
       let edgeProgress = 1;
@@ -218,8 +240,7 @@ export default function NetworkGraph() {
         } else {
           ctx.shadowBlur = 0;
           ctx.lineWidth = 1;
-          const edgeAlpha = Math.min(pa.z, pb.z) * 0.18;
-          ctx.strokeStyle = `rgba(255, 255, 255, ${edgeAlpha})`;
+          ctx.strokeStyle = EDGE_DEFAULT;
         }
 
         ctx.beginPath();
@@ -236,35 +257,33 @@ export default function NetworkGraph() {
         ? Math.min(1, (now - bootStartRef.current) / 200)
         : 1;
 
-      const baseRadius = (r: number, z: number) => r * (0.4 + z * 0.8);
       states.forEach((s) => {
-        const r = baseRadius(s.radius, s.z);
         ctx.save();
-        ctx.globalAlpha = nodeOpacity * (0.25 + s.z * 0.75);
+        ctx.globalAlpha = nodeOpacity;
 
         ctx.shadowBlur = 0;
         ctx.fillStyle = NODE_HALO;
         ctx.beginPath();
-        ctx.arc(s.x, s.y, r * 3, 0, Math.PI * 2);
+        ctx.arc(s.x, s.y, s.radius * 3, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.shadowBlur = (1 - s.z) * 12;
-        ctx.shadowColor = NODE_FILL;
+        ctx.shadowBlur = 16;
+        ctx.shadowColor = NODE_GLOW;
         ctx.fillStyle = NODE_FILL;
         ctx.beginPath();
-        ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
+        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
         ctx.fill();
+        if (s.id === "agent-core" || s.id === "deploy-core") {
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
         ctx.restore();
 
-        if (s.z > 0.4) {
-          ctx.save();
-          ctx.globalAlpha = nodeOpacity * (s.z - 0.4) * 0.4;
-          ctx.fillStyle = LABEL_COLOR;
-          ctx.font = "9px monospace";
-          ctx.textAlign = "center";
-          ctx.fillText(s.label, s.x, s.y + r + 12);
-          ctx.restore();
-        }
+        ctx.fillStyle = "rgba(200, 160, 100, 0.55)";
+        ctx.font = "10px system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(`"${s.label}"`, s.x, s.y + 12);
       });
 
       const gradient = ctx.createRadialGradient(
