@@ -10,8 +10,8 @@ import {
 } from "@/hooks/useNetworkGraph";
 
 const BG = "#060608";
-const EDGE_OPACITY = 0.07;
-const BOOT_DURATION = 1500;
+const EDGE_OPACITY = 0.08;
+const BOOT_DURATION = 2400;
 const PULSE_SPEED = 0.0015;
 const PULSE_SPAWN_INTERVAL = 4500;
 const PARALLAX_STRENGTH = 0.03;
@@ -286,7 +286,7 @@ export default function NetworkGraph() {
           ctx.strokeStyle = gradient;
         } else {
           ctx.shadowBlur = 0;
-          ctx.lineWidth = 0.8;
+          ctx.lineWidth = 0.6;
           const grad = ctx.createLinearGradient(pa.x, pa.y, pb.x, pb.y);
           grad.addColorStop(0, `rgba(120, 160, 220, ${EDGE_OPACITY * 0.3})`);
           grad.addColorStop(0.5, `rgba(150, 190, 255, ${EDGE_OPACITY})`);
@@ -323,21 +323,22 @@ export default function NetworkGraph() {
         ? Math.min(1, (now - bootStartRef.current) / 200)
         : 1;
 
-      const breathingScale = 1 + Math.sin(now * 0.0012) * 0.03;
+      const breathingPhase = now * 0.0012;
+      const breathingScale = 1 + Math.sin(breathingPhase) * 0.08;
+      const breathingOpacity = 0.85 + 0.15 * Math.sin(breathingPhase);
 
       states.forEach((s) => {
         const isCore = s.nodeType === "core";
         const isPrimary = s.nodeType === "primary";
-        const isSecondary = s.nodeType === "secondary";
         const r = isCore ? s.radius * breathingScale : s.radius;
 
         ctx.save();
         ctx.globalAlpha = nodeOpacity;
 
-        const opacity = isCore ? 1 : isPrimary ? 0.75 : isSecondary ? 0.55 : 0.4;
-        const glow = isCore ? 18 : isPrimary ? 10 : isSecondary ? 6 : 4;
+        const opacity = isCore ? breathingOpacity : isPrimary ? 0.8 : 0.35;
+        const glow = isCore ? 22 : isPrimary ? 10 : 3;
         ctx.shadowBlur = glow;
-        ctx.shadowColor = `rgba(255, 255, 255, ${isCore ? 0.35 : isPrimary ? 0.18 : 0.12})`;
+        ctx.shadowColor = `rgba(255, 255, 255, ${isCore ? 0.4 : isPrimary ? 0.18 : 0.08})`;
         ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
         ctx.beginPath();
         ctx.arc(s.x, s.y, r, 0, Math.PI * 2);

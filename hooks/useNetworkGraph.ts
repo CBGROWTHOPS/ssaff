@@ -64,15 +64,13 @@ export const LABELS_ALWAYS_VISIBLE: readonly string[] = [
 
 export const NODE_TYPES = {
   core: ["agent-core"],
-  primary: ["data-layer", "conversion-bridge", "offer-network", "optimization", "command-bus"],
-  secondary: ["paid-traffic", "landing-system", "lead-capture", "click-tracker", "email-system", "sms-gateway", "postback-relay", "routing-engine", "attribution-core", "profit-monitor"],
-  peripheral: ["geo-router", "fraud-filter", "session-sync", "model-cache", "event-stream", "signal-engine"],
+  primary: ["data-layer", "conversion-bridge", "offer-network", "optimization", "profit-monitor"],
+  peripheral: ["command-bus", "paid-traffic", "landing-system", "lead-capture", "click-tracker", "email-system", "sms-gateway", "postback-relay", "routing-engine", "attribution-core", "geo-router", "fraud-filter", "session-sync", "model-cache", "event-stream", "signal-engine"],
 } as const;
 
-function getNodeType(id: string): "core" | "primary" | "secondary" | "peripheral" {
+function getNodeType(id: string): "core" | "primary" | "peripheral" {
   if ((NODE_TYPES.core as readonly string[]).includes(id)) return "core";
   if ((NODE_TYPES.primary as readonly string[]).includes(id)) return "primary";
-  if ((NODE_TYPES.secondary as readonly string[]).includes(id)) return "secondary";
   return "peripheral";
 }
 
@@ -125,12 +123,12 @@ export type NodeState = {
   vy: number;
   mass: number;
   radius: number;
-  nodeType: "core" | "primary" | "secondary" | "peripheral";
+  nodeType: "core" | "primary" | "peripheral";
   targetX: number;
   targetY: number;
 };
 
-const BOOT_DURATION = 1500;
+const BOOT_DURATION = 2400;
 const SPRING_REST_LENGTH = 140;
 const SPRING_STRENGTH = 0.02;
 const REPEL_STRENGTH = 28;
@@ -149,6 +147,13 @@ function easeOutExpo(t: number): number {
   return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t);
 }
 
+function easeOutBackOrbit(t: number): number {
+  if (t >= 1) return 1;
+  if (t < 0.72) return easeOutExpo(t / 0.72);
+  const settle = (t - 0.72) / 0.28;
+  return 1 + 0.05 * Math.sin(settle * Math.PI);
+}
+
 function placeNodesInLayers(
   width: number,
   height: number
@@ -164,16 +169,10 @@ function placeNodesInLayers(
     const r = minDim * 0.16;
     map.set(id, { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
   });
-  const secondary = NODE_TYPES.secondary as readonly string[];
-  secondary.forEach((id, i) => {
-    const angle = (2 * Math.PI * i) / secondary.length - 0.2;
-    const r = minDim * 0.28;
-    map.set(id, { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
-  });
   const peripheral = NODE_TYPES.peripheral as readonly string[];
   peripheral.forEach((id, i) => {
-    const angle = (2 * Math.PI * i) / peripheral.length + 0.4;
-    const r = minDim * 0.38;
+    const angle = (2 * Math.PI * i) / peripheral.length - 0.2;
+    const r = minDim * 0.32;
     map.set(id, { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
   });
   return map;
@@ -209,8 +208,8 @@ export function useNetworkGraph(
     const targets = placeNodesInLayers(width, height);
 
     const states = new Map<string, NodeState>();
-    const radiusByType = { core: 8, primary: 4.5, secondary: 3, peripheral: 2 };
-    const massByType = { core: 2, primary: 1.2, secondary: 0.95, peripheral: 0.7 };
+    const radiusByType = { core: 9, primary: 5.5, peripheral: 2.5 };
+    const massByType = { core: 2, primary: 1.2, peripheral: 0.7 };
     NODES.forEach((n) => {
       const t = targets.get(n.id) ?? { x: cx, y: cy };
       const nodeType = getNodeType(n.id);
@@ -252,9 +251,13 @@ export function useNetworkGraph(
         const t = Math.min(1, elapsed / BOOT_DURATION);
         const eased = easeOutExpo(t);
 
+        const orbitEased = easeOutBackOrbit(t);
         states.forEach((s) => {
-          s.x = cx + (s.targetX - cx) * eased;
-          s.y = cy + (s.targetY - cy) * eased;
+          const angle = Math.atan2(s.targetY - cy, s.targetX - cx);
+          const targetR = Math.hypot(s.targetX - cx, s.targetY - cy);
+          const r = targetR * orbitEased;
+          s.x = cx + r * Math.cos(angle);
+          s.y = cy + r * Math.sin(angle);
         });
 
         if (t >= 1) {
