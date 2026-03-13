@@ -6,10 +6,11 @@ import {
   EDGES,
   findNodeAtPosition,
   GRAB_RADIUS,
+  LABELS_ALWAYS_VISIBLE,
 } from "@/hooks/useNetworkGraph";
 
 const BG = "#060608";
-const EDGE_OPACITY = 0.1;
+const EDGE_OPACITY = 0.07;
 const BOOT_DURATION = 1500;
 const PULSE_SPEED = 0.0015;
 const PULSE_SPAWN_INTERVAL = 4500;
@@ -220,9 +221,9 @@ export default function NetworkGraph() {
         width * 0.45, height * 0.58,
         height * 0.65
       );
-      light.addColorStop(0, "rgba(40, 60, 100, 0.35)");
-      light.addColorStop(0.3, "rgba(20, 35, 70, 0.15)");
-      light.addColorStop(0.7, "rgba(10, 15, 30, 0.05)");
+      light.addColorStop(0, "rgba(45, 70, 115, 0.42)");
+      light.addColorStop(0.3, "rgba(25, 42, 85, 0.18)");
+      light.addColorStop(0.7, "rgba(12, 18, 36, 0.06)");
       light.addColorStop(1, "rgba(0, 0, 0, 0)");
       ctx.fillStyle = light;
       ctx.fillRect(-50, -50, width + 100, height + 100);
@@ -232,8 +233,8 @@ export default function NetworkGraph() {
         width * 0.5, height * 1.1,
         height * 0.7
       );
-      floor.addColorStop(0, "rgba(30, 50, 90, 0.25)");
-      floor.addColorStop(0.5, "rgba(15, 25, 50, 0.08)");
+      floor.addColorStop(0, "rgba(35, 58, 105, 0.3)");
+      floor.addColorStop(0.5, "rgba(18, 30, 60, 0.1)");
       floor.addColorStop(1, "rgba(0, 0, 0, 0)");
       ctx.fillStyle = floor;
       ctx.fillRect(-50, -50, width + 100, height + 100);
@@ -285,7 +286,7 @@ export default function NetworkGraph() {
           ctx.strokeStyle = gradient;
         } else {
           ctx.shadowBlur = 0;
-          ctx.lineWidth = 1;
+          ctx.lineWidth = 0.8;
           const grad = ctx.createLinearGradient(pa.x, pa.y, pb.x, pb.y);
           grad.addColorStop(0, `rgba(120, 160, 220, ${EDGE_OPACITY * 0.3})`);
           grad.addColorStop(0.5, `rgba(150, 190, 255, ${EDGE_OPACITY})`);
@@ -326,27 +327,32 @@ export default function NetworkGraph() {
 
       states.forEach((s) => {
         const isCore = s.nodeType === "core";
-        const isSystem = s.nodeType === "system";
+        const isPrimary = s.nodeType === "primary";
+        const isSecondary = s.nodeType === "secondary";
         const r = isCore ? s.radius * breathingScale : s.radius;
 
         ctx.save();
         ctx.globalAlpha = nodeOpacity;
 
-        const opacity = isCore ? 1 : isSystem ? 0.7 : 0.45;
-        const glow = isCore ? 18 : isSystem ? 10 : 5;
+        const opacity = isCore ? 1 : isPrimary ? 0.75 : isSecondary ? 0.55 : 0.4;
+        const glow = isCore ? 18 : isPrimary ? 10 : isSecondary ? 6 : 4;
         ctx.shadowBlur = glow;
-        ctx.shadowColor = `rgba(255, 255, 255, ${isCore ? 0.35 : 0.15})`;
+        ctx.shadowColor = `rgba(255, 255, 255, ${isCore ? 0.35 : isPrimary ? 0.18 : 0.12})`;
         ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
         ctx.beginPath();
         ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
 
-        if (hoveredNodeId === s.id || grabbedNodeId === s.id) {
-          ctx.fillStyle = isCore ? "rgba(255, 255, 255, 0.8)" : "rgba(255, 255, 255, 0.5)";
+        const showLabel =
+          (LABELS_ALWAYS_VISIBLE as readonly string[]).includes(s.id) ||
+          hoveredNodeId === s.id ||
+          grabbedNodeId === s.id;
+        if (showLabel) {
+          ctx.fillStyle = isCore ? "rgba(255, 255, 255, 0.85)" : "rgba(255, 255, 255, 0.5)";
           ctx.font = "10px system-ui, sans-serif";
           ctx.textAlign = "center";
-          ctx.fillText(`"${s.label}"`, s.x, s.y + r + 14);
+          ctx.fillText(`"${s.label}"`, s.x, s.y + r + 12);
         }
       });
 

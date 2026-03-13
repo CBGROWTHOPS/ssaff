@@ -8,12 +8,23 @@ export const NODES = [
   { id: "conversion-bridge", label: "conversion-bridge" },
   { id: "offer-network", label: "offer-network" },
   { id: "optimization", label: "optimization" },
+  { id: "command-bus", label: "command-bus" },
   { id: "paid-traffic", label: "paid-traffic" },
   { id: "landing-system", label: "landing-system" },
-  { id: "email-system", label: "email-system" },
+  { id: "lead-capture", label: "lead-capture" },
   { id: "click-tracker", label: "click-tracker" },
+  { id: "email-system", label: "email-system" },
+  { id: "sms-gateway", label: "sms-gateway" },
   { id: "postback-relay", label: "postback-relay" },
+  { id: "routing-engine", label: "routing-engine" },
+  { id: "attribution-core", label: "attribution-core" },
   { id: "profit-monitor", label: "profit-monitor" },
+  { id: "geo-router", label: "geo-router" },
+  { id: "fraud-filter", label: "fraud-filter" },
+  { id: "session-sync", label: "session-sync" },
+  { id: "model-cache", label: "model-cache" },
+  { id: "event-stream", label: "event-stream" },
+  { id: "signal-engine", label: "signal-engine" },
 ] as const;
 
 export const EDGES: [string, string][] = [
@@ -21,27 +32,47 @@ export const EDGES: [string, string][] = [
   ["agent-core", "conversion-bridge"],
   ["agent-core", "offer-network"],
   ["agent-core", "optimization"],
+  ["agent-core", "command-bus"],
   ["paid-traffic", "landing-system"],
-  ["landing-system", "conversion-bridge"],
+  ["landing-system", "lead-capture"],
+  ["lead-capture", "conversion-bridge"],
   ["landing-system", "email-system"],
   ["conversion-bridge", "offer-network"],
   ["offer-network", "postback-relay"],
-  ["postback-relay", "profit-monitor"],
+  ["postback-relay", "attribution-core"],
+  ["attribution-core", "profit-monitor"],
   ["optimization", "profit-monitor"],
   ["data-layer", "conversion-bridge"],
+  ["command-bus", "routing-engine"],
+  ["click-tracker", "conversion-bridge"],
+  ["routing-engine", "postback-relay"],
+  ["routing-engine", "geo-router"],
+  ["fraud-filter", "attribution-core"],
+  ["session-sync", "data-layer"],
+  ["model-cache", "optimization"],
+  ["event-stream", "conversion-bridge"],
+  ["signal-engine", "profit-monitor"],
+  ["sms-gateway", "lead-capture"],
 ];
 
 export const GRAB_RADIUS = 12;
 
+export const LABELS_ALWAYS_VISIBLE: readonly string[] = [
+  "agent-core", "data-layer", "conversion-bridge",
+  "offer-network", "optimization", "profit-monitor",
+];
+
 export const NODE_TYPES = {
   core: ["agent-core"],
-  system: ["data-layer", "conversion-bridge", "offer-network", "optimization"],
-  peripheral: ["paid-traffic", "landing-system", "email-system", "click-tracker", "postback-relay", "profit-monitor"],
+  primary: ["data-layer", "conversion-bridge", "offer-network", "optimization", "command-bus"],
+  secondary: ["paid-traffic", "landing-system", "lead-capture", "click-tracker", "email-system", "sms-gateway", "postback-relay", "routing-engine", "attribution-core", "profit-monitor"],
+  peripheral: ["geo-router", "fraud-filter", "session-sync", "model-cache", "event-stream", "signal-engine"],
 } as const;
 
-function getNodeType(id: string): "core" | "system" | "peripheral" {
+function getNodeType(id: string): "core" | "primary" | "secondary" | "peripheral" {
   if ((NODE_TYPES.core as readonly string[]).includes(id)) return "core";
-  if ((NODE_TYPES.system as readonly string[]).includes(id)) return "system";
+  if ((NODE_TYPES.primary as readonly string[]).includes(id)) return "primary";
+  if ((NODE_TYPES.secondary as readonly string[]).includes(id)) return "secondary";
   return "peripheral";
 }
 
@@ -57,20 +88,32 @@ const NODE_TO_ZONE: Record<string, keyof typeof ZONES> = {
   "conversion-bridge": "layer1",
   "offer-network": "layer1",
   "optimization": "layer1",
+  "command-bus": "layer1",
   "paid-traffic": "layer2",
   "landing-system": "layer2",
-  "email-system": "layer2",
+  "lead-capture": "layer2",
   "click-tracker": "layer2",
+  "email-system": "layer2",
+  "sms-gateway": "layer2",
   "postback-relay": "layer2",
+  "routing-engine": "layer2",
+  "attribution-core": "layer2",
   "profit-monitor": "layer2",
+  "geo-router": "layer2",
+  "fraud-filter": "layer2",
+  "session-sync": "layer2",
+  "model-cache": "layer2",
+  "event-stream": "layer2",
+  "signal-engine": "layer2",
 };
 
 const CENTER_BIAS: Record<string, number> = {
   "agent-core": 1,
   "data-layer": 0.5,
   "conversion-bridge": 0.5,
-  "offer-network": 0.3,
-  "optimization": 0.3,
+  "offer-network": 0.35,
+  "optimization": 0.35,
+  "command-bus": 0.3,
 };
 
 export type NodeState = {
@@ -82,13 +125,13 @@ export type NodeState = {
   vy: number;
   mass: number;
   radius: number;
-  nodeType: "core" | "system" | "peripheral";
+  nodeType: "core" | "primary" | "secondary" | "peripheral";
   targetX: number;
   targetY: number;
 };
 
 const BOOT_DURATION = 1500;
-const SPRING_REST_LENGTH = 180;
+const SPRING_REST_LENGTH = 140;
 const SPRING_STRENGTH = 0.02;
 const REPEL_STRENGTH = 28;
 const REPEL_RADIUS = 220;
@@ -113,17 +156,24 @@ function placeNodesInLayers(
   const map = new Map<string, { x: number; y: number }>();
   const cx = width / 2;
   const cy = height / 2;
+  const minDim = Math.min(width, height);
   map.set("agent-core", { x: cx, y: cy });
-  const layer1 = NODE_TYPES.system;
-  layer1.forEach((id, i) => {
-    const angle = (2 * Math.PI * i) / layer1.length;
-    const r = Math.min(width, height) * 0.22;
+  const primary = NODE_TYPES.primary as readonly string[];
+  primary.forEach((id, i) => {
+    const angle = (2 * Math.PI * i) / primary.length;
+    const r = minDim * 0.16;
     map.set(id, { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
   });
-  const layer2 = NODE_TYPES.peripheral;
-  layer2.forEach((id, i) => {
-    const angle = (2 * Math.PI * i) / layer2.length - 0.3;
-    const r = Math.min(width, height) * 0.38;
+  const secondary = NODE_TYPES.secondary as readonly string[];
+  secondary.forEach((id, i) => {
+    const angle = (2 * Math.PI * i) / secondary.length - 0.2;
+    const r = minDim * 0.28;
+    map.set(id, { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
+  });
+  const peripheral = NODE_TYPES.peripheral as readonly string[];
+  peripheral.forEach((id, i) => {
+    const angle = (2 * Math.PI * i) / peripheral.length + 0.4;
+    const r = minDim * 0.38;
     map.set(id, { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
   });
   return map;
@@ -159,8 +209,8 @@ export function useNetworkGraph(
     const targets = placeNodesInLayers(width, height);
 
     const states = new Map<string, NodeState>();
-    const radiusByType = { core: 8, system: 4, peripheral: 2.5 };
-    const massByType = { core: 2, system: 1.2, peripheral: 0.8 };
+    const radiusByType = { core: 8, primary: 4.5, secondary: 3, peripheral: 2 };
+    const massByType = { core: 2, primary: 1.2, secondary: 0.95, peripheral: 0.7 };
     NODES.forEach((n) => {
       const t = targets.get(n.id) ?? { x: cx, y: cy };
       const nodeType = getNodeType(n.id);
