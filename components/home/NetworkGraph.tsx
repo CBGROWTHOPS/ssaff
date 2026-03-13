@@ -11,7 +11,7 @@ import {
 
 const BG = "#060608";
 const EDGE_OPACITY = 0.08;
-const BOOT_DURATION = 3200;
+const BOOT_DURATION = 3500;
 const PULSE_SPEED = 0.0015;
 const PULSE_SPAWN_INTERVAL = 4500;
 const PARALLAX_STRENGTH = 0.03;

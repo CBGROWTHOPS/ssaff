@@ -84,14 +84,14 @@ export type NodeState = {
   targetY: number;
 };
 
-const BOOT_DURATION = 3200;
+const BOOT_DURATION = 3500;
 const SPRING_REST_LENGTH = 120;
-const SPRING_STRENGTH = 0.012;
+const SPRING_STRENGTH = 0.01;
 const REPEL_STRENGTH = 48;
 const REPEL_RADIUS = 260;
-const CENTER_ATTRACTION = 0.014;
-const BOOT_CENTER_ATTRACTION = 0.022;
-const DAMPING = 0.92;
+const CENTER_ATTRACTION = 0.012;
+const BOOT_CENTER_ATTRACTION = 0.008;
+const DAMPING = 0.87;
 const BOUNDARY = 60;
 const BOUNDARY_STRENGTH = 0.8;
 const IDLE_VELOCITY_INJECT = 0.008;
@@ -159,8 +159,8 @@ export function useNetworkGraph(
         label: n.label,
         x: pos.x,
         y: pos.y,
-        vx: (Math.random() - 0.5) * 4,
-        vy: (Math.random() - 0.5) * 4,
+        vx: (Math.random() - 0.5) * 2.5,
+        vy: (Math.random() - 0.5) * 2.5,
         mass: massByType[nodeType],
         radius: radiusByType[nodeType],
         nodeType,
