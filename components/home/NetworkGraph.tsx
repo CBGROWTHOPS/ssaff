@@ -333,6 +333,46 @@ export default function NetworkGraph() {
         const isPrimary = s.nodeType === "primary";
         const r = isCore ? s.radius * breathingScale : s.radius;
 
+        if (isCore) {
+          const pulse = 0.5 + 0.5 * Math.sin(now * 0.0011);
+          const ring1 = r + 10 + pulse * 6;
+          const ring2 = r + 26 + pulse * 10;
+          const ring3 = r + 46 + pulse * 14;
+
+          ctx.save();
+          ctx.globalAlpha = nodeOpacity;
+          ctx.shadowBlur = 0;
+
+          const halo = ctx.createRadialGradient(s.x, s.y, r, s.x, s.y, ring3);
+          halo.addColorStop(0, "rgba(255, 255, 255, 0.22)");
+          halo.addColorStop(0.25, "rgba(170, 210, 255, 0.14)");
+          halo.addColorStop(0.6, "rgba(90, 170, 255, 0.06)");
+          halo.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+          ctx.fillStyle = halo;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, ring3, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = `rgba(200, 230, 255, ${0.08 + pulse * 0.06})`;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, ring1, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.strokeStyle = `rgba(140, 200, 255, ${0.05 + pulse * 0.04})`;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, ring2, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.strokeStyle = `rgba(110, 180, 255, ${0.03 + pulse * 0.03})`;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, ring3, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.restore();
+        }
+
         ctx.save();
         ctx.globalAlpha = nodeOpacity;
 
