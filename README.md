@@ -1,4 +1,13 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SSAFF (SuperAffiliate AI)
+
+Agency OS docs and interfaces for the performance stack.
+
+- **[NEW_BRAND_CHECKLIST.md](./NEW_BRAND_CHECKLIST.md)** — BeMob postback flags, verification, backfill (read this on every brand launch)
+- **[INTERFACES.md](./INTERFACES.md)** — `media-buyer-agent` interfaces
+
+---
+
+This repo also contains a [Next.js](https://nextjs.org) app bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
 
