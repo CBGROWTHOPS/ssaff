@@ -4,6 +4,7 @@ Agency OS docs and interfaces for the performance stack.
 
 - **[NEW_BRAND_CHECKLIST.md](./NEW_BRAND_CHECKLIST.md)** — BeMob postback flags, verification, backfill (read this on every brand launch)
 - **[INTERFACES.md](./INTERFACES.md)** — `media-buyer-agent` interfaces
+- **[COSDEV.md](./COSDEV.md)** — minimal HTTP CoS (dev) vs full Chief-of-Staff; links to `media-buyer-agent/cos`
 
 ---
 
