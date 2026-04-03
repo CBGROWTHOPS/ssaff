@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 
-// Real SSAFF brain nodes — from Obsidian knowledge graph
+// SSAFF brain structure — agent names kept, brands swapped with popular tools
 export const NODES = [
   { id: "SSAFF Home", label: "SSAFF" },
   { id: "Layer 0 — Command", label: "Command" },
@@ -29,20 +29,20 @@ export const NODES = [
   { id: "creative-refresh", label: "Creative Refresh" },
   { id: "content-repurpose", label: "Content Repurpose" },
   { id: "weekly-learning", label: "Learning" },
-  { id: "warehouse-analytics", label: "Warehouse" },
-  { id: "knowledge-system", label: "Knowledge" },
-  { id: "learning-system", label: "Learning System" },
-  { id: "bdn", label: "BDN" },
-  { id: "gth", label: "GTH" },
-  { id: "fxg", label: "FXG" },
-  { id: "autonomy-rules", label: "Autonomy" },
-  { id: "constitution", label: "Constitution" },
+  { id: "warehouse-analytics", label: "Supabase" },
+  { id: "knowledge-system", label: "Gemini" },
+  { id: "learning-system", label: "Claude" },
+  { id: "bdn", label: "Shopify" },
+  { id: "gth", label: "Vercel" },
+  { id: "fxg", label: "GitHub" },
+  { id: "autonomy-rules", label: "Guardrails" },
+  { id: "constitution", label: "Policy Engine" },
   { id: "thresholds", label: "Thresholds" },
   { id: "human-in-the-loop", label: "Human Loop" },
-  { id: "conversion-postback-chain", label: "Postback Chain" },
-  { id: "audience-intelligence", label: "Audience Intel" },
-  { id: "competitor-monitoring", label: "Competitor Watch" },
-  { id: "Products", label: "Products" },
+  { id: "conversion-postback-chain", label: "Stripe" },
+  { id: "audience-intelligence", label: "Meta Ads" },
+  { id: "competitor-monitoring", label: "Google Ads" },
+  { id: "Products", label: "Slack" },
 ] as const;
 
 // Real SSAFF brain connections — from Obsidian [[wiki-links]]
@@ -103,8 +103,9 @@ export const EDGES: [string, string][] = [
 export const GRAB_RADIUS = 12;
 
 export const LABELS_ALWAYS_VISIBLE: readonly string[] = [
-  "SSAFF Home", "cos", "creative-agent", "media-buyer-agent", "bdn", "gth",
-  "Layer 0 — Command", "Layer 2 — Production", "knowledge-system",
+  "SSAFF Home", "cos", "creative-agent", "media-buyer-agent",
+  "bdn", "gth", "fxg", "warehouse-analytics", "knowledge-system", "learning-system",
+  "audience-intelligence", "competitor-monitoring", "conversion-postback-chain", "Products",
 ];
 
 export const NODE_TYPES = {
