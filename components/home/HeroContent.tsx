@@ -36,7 +36,7 @@ export default function HeroContent() {
           textTransform: "uppercase",
         }}
       >
-        Autonomous marketing infrastructure
+        Agentic marketing infrastructure
       </span>
     </div>
   );

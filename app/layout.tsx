@@ -15,8 +15,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SSAFF — Autonomous Affiliate Infrastructure",
-  description: "AI-driven affiliate marketing infrastructure.",
+  title: "SSAFF — Agentic Marketing Infrastructure",
+  description: "Agentic marketing infrastructure powered by AI.",
 };
 
 export default function RootLayout({
