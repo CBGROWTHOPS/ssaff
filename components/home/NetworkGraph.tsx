@@ -148,6 +148,56 @@ export default function NetworkGraph() {
     setMousePos(null);
   }, [grabbedNodeId]);
 
+  // Touch handlers for mobile
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent<HTMLCanvasElement>) => {
+      const canvas = canvasRef.current;
+      if (!canvas || !e.touches[0]) return;
+      const { x, y } = getCanvasPoint(canvas, e.touches[0].clientX, e.touches[0].clientY);
+      const hit = findNodeAtPosition(nodeStates.current, x, y, GRAB_RADIUS * 2);
+      if (hit) {
+        e.preventDefault();
+        setGrabbedNodeId(hit);
+        setGrabPosition({ x, y });
+        mouseHistoryRef.current = [{ x, y, t: performance.now() }];
+      }
+    },
+    [nodeStates]
+  );
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent<HTMLCanvasElement>) => {
+      if (!grabbedNodeId || !e.touches[0]) return;
+      e.preventDefault();
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const { x, y } = getCanvasPoint(canvas, e.touches[0].clientX, e.touches[0].clientY);
+      setGrabPosition({ x, y });
+      mouseHistoryRef.current.push({ x, y, t: performance.now() });
+      if (mouseHistoryRef.current.length > 5) mouseHistoryRef.current.shift();
+    },
+    [grabbedNodeId]
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    if (grabbedNodeId) {
+      const history = mouseHistoryRef.current;
+      if (history.length >= 2) {
+        const first = history[0];
+        const last = history[history.length - 1];
+        const dt = (last.t - first.t) / 1000 || 0.016;
+        if (dt > 0) {
+          const vx = (last.x - first.x) / dt;
+          const vy = (last.y - first.y) / dt;
+          setReleaseVelocity({ nodeId: grabbedNodeId, vx, vy });
+        }
+      }
+      setGrabbedNodeId(null);
+      setGrabPosition(null);
+      mouseHistoryRef.current = [];
+    }
+  }, [grabbedNodeId]);
+
   useEffect(() => {
     if (releaseVelocity && !grabbedNodeId) {
       const t = setTimeout(() => setReleaseVelocity(null), 100);
@@ -460,6 +510,9 @@ export default function NetworkGraph() {
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     />
   );
 }
