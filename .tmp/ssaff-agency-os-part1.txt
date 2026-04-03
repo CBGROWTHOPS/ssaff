@@ -1,0 +1,606 @@
+SSAFF
+
+Architecture  ·  Hierarchy  ·  Agent Roles  ·  Naming  ·  Roadmap  ·  CoS
+
+SSAFF is a performance marketing company running multiple affiliate brands through a fully automated AI agency stack. This document defines the system architecture, agent hierarchy, naming conventions, autonomy rules, and recommended additions.
+
+You make all final decisions. No agent spends money, pauses campaigns, or changes strategy without your approval. Every agent surfaces information, makes recommendations, and executes only pre-approved actions.
+
+SSAFF — Part 1 of 2
+Architecture, hierarchy, current state, media-buyer-agent, CoS, brand inventory, Supabase schema, migrations, Keygent. Part 2 covers communication map, recommended agents, products, infrastructure, and build guide.
+
+
+TABLE OF CONTENTS
+
+Section
+Topic
+1
+Current State — what is live, building, and planned
+2
+System Map — five layers, Products row
+3
+Repo Structure — all 18 GitHub repos
+4
+Naming System — all orchestrators and ai-agency agents
+5
+Decision Hierarchy — auto vs approval for every agent
+6
+Existing Agent Profiles — creative-agent, ai-agency
+7
+Building Now — media-buyer-agent full spec
+8
+Recommended Agents — email, growth, brand
+9
+Full Agent Map — all agents, layers, status
+10
+Communication Map — every agent-to-system connection
+11
+Slack Channels — all channels and purposes
+CoS
+Chief of Staff — orchestrator template, video-agent, escalation rules
+Supabase Schema
+All 20+ tables across 5 categories
+Knowledge Base
+Internal intelligence infrastructure — what it is, how agents query it
+Brand Inventory
+BDN, RFJ, GTH — all IDs and configs in one place
+Keygent Integration
+Auth pattern, all secrets, code pattern
+CoS Spawning
+9-step orchestrator provisioning sequence
+Migrations
+All 10 Supabase migrations — 2 complete, 8 to write
+research-agent
+Intelligence orchestrator — 9 subagents, Knowledge Base schema
+Self-Learning
+Learning loop, agent_prompts, quality scores per agent
+SSAFF Products
+Keygent, Reach, Signal, Bridge — moats and flywheel
+Infrastructure
+Railway projects, GWS CLI, security, parallel generation
+access-manager
+Credential provisioning — permissions matrix, V2 identity-agent
+doc-agent
+Documentation orchestrator — 15 subagents, 3-layer doc system
+analytics-agent
+Operational intelligence — feeds Signal product
+social-agent
+All platform publishing — 7 subagents
+seo-agent
+SEO strategy — 7 subagents, SEO content loop
+Model Selection
+Runtime model assignments + build model guide
+Cross-Agent Standards
+pgvector, error handling, Frame.io, job state machine
+12
+Build Roadmap — 11 priorities + V2
+13
+New Brand Checklist — 9-step launch process
+
+
+1. CURRENT STATE
+What is live, what is building, and what is planned.
+
+System
+Status
+ai-agency
+✅ Live — monitoring, alerts, daily briefing, cron agents
+creative-agent
+✅ Live — creative production on Railway + n8n
+Signal (product)
+✅ Live — performance dashboard SaaS, fed by analytics-agent
+Bridge (product)
+✅ Live — CAPI relay SaaS, affiliate conversion attribution
+Warehouse
+✅ Live — Supabase + daily FB Ads ETL
+cos
+🔨 Building — Chief of Staff, command interface to all orchestrators
+media-buyer-agent
+🔨 Building now — performance orchestrator
+video-agent
+📋 Recommended — all video formats, own orchestrator
+email-agent
+📋 Recommended — full email automation
+growth-agent
+📋 Recommended — audience and vertical discovery
+brand-agent
+📋 Recommended — new brand launch automation
+research-agent
+📋 Recommended — internet intelligence + knowledge base
+analytics-agent
+📋 Recommended — intelligence layer, feeds Signal product
+social-agent
+📋 Recommended — all platform publishing orchestrator
+seo-agent
+📋 Recommended — SEO strategy, Search Console, GA4, content briefs
+identity-agent
+📋 V2 — graduates from access-manager CoS subagent when SSAFF manages external users
+doc-agent
+📋 Recommended — documentation orchestrator, version control, spec generation, drift detection
+
+
+2. SYSTEM MAP
+Five layers. Each layer has one job and communicates only up or down — never sideways.
+
+Layer
+Role
+LAYER 0 — You
+All final decisions. Approval required for any spend change, new campaign, offer swap, or new brand launch.
+LAYER 1 — Orchestrators
+Nine specialized orchestrators each owning a distinct domain: media-buyer-agent, email-agent, growth-agent, brand-agent, research-agent, analytics-agent, social-agent, seo-agent, video-agent. Each has its own repo. Each calls Layer 2 for production work.
+LAYER 2 — creative-agent
+Creative production only. Generates copy and images, posts to Facebook pages. Receives briefs from Layer 1. Never initiates.
+LAYER 3 — ai-agency
+Monitoring and alerts only. Read-only access. Watches P&L, tracking health, offer caps, email lists. Posts to Slack. No write access to ad accounts.
+LAYER 4 — Infrastructure
+Warehouse (Supabase operational data) and Knowledge Base (Supabase research data). Internal only — not products, not sold externally.
+PRODUCTS
+Keygent, Reach, Signal, Bridge — four SaaS products sold externally, built from SSAFF infrastructure.
+
+
+3. REPO STRUCTURE
+Every orchestrator has its own GitHub repo. Subagents live inside their orchestrator's repo — not separate repos.
+
+Repo
+Contents
+CBGROWTHOPS/media-buyer-agent
+Orchestrator + subagents: campaign-manager, budget-optimizer, audience-builder, attribution-auditor, offer-monitor, social-poster
+CBGROWTHOPS/email-agent
+Orchestrator + subagents: sequence-writer, engagement-monitor, offer-rotator, ab-tester, list-cleaner
+CBGROWTHOPS/growth-agent
+Orchestrator + subagents: community-scout, vertical-scorer, competitor-monitor, brief-enricher
+CBGROWTHOPS/brand-agent
+Orchestrator + subagents: site-builder, domain-manager, pixel-installer, tracking-configurator, bemob-setup, mailerlite-setup, monday-setup, qa-agent
+CBGROWTHOPS/creative-agent
+Orchestrator + n8n workflows: Brand Config, Creative Brief, Static Ad Creator, Storage, Publisher
+CBGROWTHOPS/cos
+Chief of Staff — orchestrator registry, command router, approval queue, morning briefing compiler, orchestrator spawner
+CBGROWTHOPS/ai-agency
+Monitoring agents: profit-watch, spend-watch, bridge-watch, offer-watch, list-watch, brief, task-sync, warehouse-etl
+CBGROWTHOPS/orchestrator-template
+Base template every orchestrator is scaffolded from. All current orchestrators refactored to match this structure.
+CBGROWTHOPS/research-agent
+Intelligence orchestrator + subagents: web-researcher, deep-scraper (Firecrawl + Apify), competitor-analyst, industry-mapper, brand-profiler, trend-monitor, gmail-monitor, youtube-researcher, doc-writer
+CBGROWTHOPS/analytics-agent
+Intelligence orchestrator + subagents: funnel-analyzer, attribution-modeler, cohort-analyzer, anomaly-detector, cross-brand-intelligence, predictive-modeler
+CBGROWTHOPS/social-agent
+Platform publishing orchestrator + subagents: facebook-publisher, instagram-publisher, tiktok-publisher, youtube-publisher, linkedin-publisher, x-publisher, schedule-manager
+CBGROWTHOPS/seo-agent
+SEO orchestrator + subagents: keyword-researcher, rank-tracker, on-page-optimizer, seo-brief-writer, ga4-analyzer, console-monitor, site-deployer
+CBGROWTHOPS/identity-agent
+V2 — credential and access management: credential-rotator, audit-reporter, client-provisioner. Replaces access-manager CoS subagent.
+CBGROWTHOPS/doc-agent
+Documentation orchestrator + 15 subagents: master-doc-reader, spec-writer, readme-writer, runbook-writer, api-contract-writer, schema-sync, env-sync, change-classifier, conflict-detector, governance-enforcer, changelog-writer, version-tracker, audit-reporter, sync-scheduler, drift-detector
+CBGROWTHOPS/Community Reach Engine
+Reach product — community intelligence platform, queries Knowledge Base for community_profiles and research_records
+CBGROWTHOPS/signal
+Signal product — React + Vite dashboard, reads analytics_insights + warehouse_daily_metrics
+CBGROWTHOPS/bemob-connect
+Bridge — CAPI relay for Lead + Purchase events
+
+
+4. NAMING SYSTEM
+
+Orchestrators (Layer 1)
+Name
+Domain
+media-buyer-agent
+Facebook Ads performance — campaigns, budgets, audiences, creative requests
+email-agent
+MailerLite — sequences, sends, engagement, offer rotation
+growth-agent
+Discovery — communities, audiences, verticals, competitive intel
+brand-agent
+Launch automation — new brand setup end to end
+research-agent
+Intelligence — internet search, scraping, Knowledge Base population
+analytics-agent
+Operational intelligence — anomaly detection, attribution modeling, feeds Signal
+social-agent
+Platform publishing — Facebook, Instagram, TikTok, YouTube, LinkedIn, X
+seo-agent
+SEO strategy — keywords, Search Console, GA4, content briefs, site deployment
+video-agent
+Video production — reels, longform, ads, stories, thumbnails
+doc-agent
+Documentation — spec generation, schema sync, drift detection, version control
+identity-agent
+V2 — credential and access management for external users
+
+ai-agency Internal Agents (renamed for clarity)
+New Name
+Old Name
+profit-watch
+pnl-tracker.js
+spend-watch
+campaign-monitor.js
+bridge-watch
+bridge-health-check.js
+offer-watch
+offer-cap-alert.js
+list-watch
+mailerlite-sync.js
+brief
+daily-briefing.js
+email-pilot
+email-strategy-agent.js (merges into email-agent)
+task-sync
+update-monday-tasks-completed.js
+command
+agency-command-bot
+warehouse-etl
+facebook-ads-etl.js
+
+
+5. DECISION HIERARCHY
+What each agent decides on its own vs what requires your approval.
+
+Agent
+Decides Autonomously
+Needs Your Approval
+media-buyer-agent
+Pause underperforming adsets, request creative, run audits, refresh audiences, flag fatigue
+Increase budget, launch campaigns, swap offers, kill brand spend
+email-agent
+Send scheduled sequences, rotate offer links, flag low engagement, suppress unengaged subscribers
+New sequence creation, major copy changes, list suppression batches
+growth-agent
+Run community discovery, score verticals, compile reports, surface opportunities to Slack
+Any action on a recommendation — growth-agent only surfaces, never executes
+brand-agent
+Execute approved launch checklist — scaffold funnel, configure Bridge, set up BeMob, MailerLite, Monday
+The launch itself — brand-agent only runs after you approve it
+creative-agent
+How to execute a brief — copy angle, image style, format, schedule
+Nothing — receives briefs only, does not initiate
+video-agent
+How to execute a video brief — format, style, music, platform spec
+Nothing — receives briefs only, does not initiate
+social-agent
+Optimal post timing per platform, caption optimization, hashtags
+Nothing — publishes only on instruction from other agents
+research-agent
+What to research, how to synthesize, when to update Knowledge Base
+Nothing — intelligence only, never acts on findings
+analytics-agent
+What patterns to surface, severity of anomalies, insight generation
+Nothing — intelligence only, never takes actions
+seo-agent
+Keyword prioritization, on-page recommendations, content brief structure
+Deploying content to site — requires your approval
+CoS
+Command routing, escalation decisions, morning briefing compilation
+Spawning new orchestrators — confirms with you first
+doc-agent
+Generate derived docs, detect drift, schema sync, write changelogs
+Edit protected master doc sections — all routed to CoS approval queue first
+doc-agent
+Generate derived docs, detect drift, schema sync, write changelogs
+Edit protected master doc sections — routed to CoS approval queue first
+ai-agency
+When and how to alert based on set thresholds
+Nothing — read only, monitor only
+
+
+6. EXISTING AGENT PROFILES
+
+creative-agent — Layer 2 — Creative Production
+Property
+Detail
+Repo
+CBGROWTHOPS/creative-agent
+Deployment
+Railway — Primary service in Content Production project
+Runtime
+Node.js Express + n8n workflow orchestration
+Brain
+Claude Sonnet (copy) + Replicate (images)
+Runs
+Every 144 mins + Mon/Wed/Fri 9am + on-demand from orchestrators
+Reads
+Airtable brand configs, Reddit, Amazon
+Writes
+Google Drive, Google Sheets, Facebook Pages
+Receives from
+Any Layer 1 orchestrator via POST /run
+Never touches
+Ad accounts, campaign settings, performance data
+
+ai-agency — Layer 3 — Monitoring Hub
+Property
+Detail
+Repo
+CBGROWTHOPS/ai-agency
+Deployment
+Local cron (crontab -e)
+Runtime
+Node.js — individual scripts on cron schedule
+Brain
+Claude Haiku (daily brief only)
+Read access
+MaxBounty, Facebook Ads (read only), Supabase, MailerLite, BeMob, Bridge /health
+Write access
+Slack webhooks, Monday.com boards only
+Never touches
+Ad accounts, campaign settings, creative production
+
+ai-agency Cron Schedule
+Time (ET)
+Agent
+7:00am daily
+warehouse-etl — FB Ads spend into Supabase
+8:50am daily
+profit-watch — P&L per brand, ROAS kill alerts
+9:00am daily
+brief — morning summary → #daily-report
+9:05am daily
+bridge-watch — Bridge health check
+9:10am daily
+task-sync — Monday board sync
+9:15am Mondays
+email-pilot — MailerLite strategy (merges into email-agent)
+Every 4 hours
+offer-watch — MaxBounty cap monitoring
+Every hour
+spend-watch — Facebook ROAS monitoring
+2:00am daily
+list-watch — MailerLite engagement sync
+
+
+7. BUILDING NOW — media-buyer-agent
+Property
+Detail
+Repo
+CBGROWTHOPS/media-buyer-agent (new)
+Deployment
+Railway — Agency Intelligence project
+Runtime
+Node.js Express + node-cron
+Brain
+Claude Sonnet — optimization decisions from warehouse data
+Runs
+8:00am ET daily + on-demand via Slack
+Reads
+warehouse_daily_metrics, job_leads, Facebook Ads, MaxBounty, BeMob, agent_decisions
+Writes
+Facebook Ads API (pauses only until approved), agent_decisions, Slack, Monday
+Calls
+creative-agent POST /run for creative requests
+Memory tables
+agent_decisions, campaign_experiments, creative_performance, offer_history
+
+Subagents
+	•	campaign-manager — pause/edit Facebook adsets and campaigns
+	•	budget-optimizer — reallocate daily budget across brands based on ROAS
+	•	audience-builder — push custom audiences from job_leads to Facebook
+	•	attribution-auditor — reconcile Bridge events vs MaxBounty vs BeMob daily
+	•	offer-monitor — MaxBounty cap/payout/conversion rate tracking
+	•	social-poster — organic Facebook page posts on behalf of brands
+
+Autonomy Rules
+	•	Pause adsets below ROAS kill threshold → auto
+	•	Request new creative from creative-agent → auto
+	•	Refresh custom audiences → auto
+	•	Run attribution audit and alert → auto
+	•	Flag creative fatigue → auto
+	•	Increase budget → Slack approval required
+	•	Launch new campaigns → Slack approval required
+	•	Swap offers → Slack approval required
+	•	Kill entire brand spend → Slack approval required
+
+Structured Experimentation — How media-buyer-agent Learns
+Most agents react. media-buyer-agent experiments. The difference is how decisions are logged and measured — and it determines whether the system gets smarter over time or just repeats the same heuristics forever.
+
+Reactive vs Experimental
+Reactive (basic)
+Experimental (SSAFF)
+ROAS drops → pause adset → log action
+ROAS drops → form hypothesis → run controlled test → measure → learn
+No control group — can't know if it worked
+Hold a comparable adset constant to isolate the variable
+Outcome: agent_decisions row with outcome pending
+Outcome: campaign_experiments row with before/after metrics and result
+Learning: Claude reads past decisions by type
+Learning: Claude reads structured experiment results with statistical context
+
+The Experiment Framework
+Every significant action media-buyer-agent takes follows this structure before executing:
+
+	•	Hypothesis — what do we think is causing the problem and what change should fix it
+	•	Variable A — what we are changing (pause adset, reduce budget, swap creative)
+	•	Variable B — what we are holding constant as control (comparable adset, same offer, different brand)
+	•	Success metric — what we measure to determine if it worked (ROAS delta, CPL change, conversion rate)
+	•	Measurement window — when we check the outcome (default 48hrs for ROAS, 7 days for creative)
+	•	Result — win / loss / inconclusive — written back to campaign_experiments after measurement window
+
+The Evolution Path
+Phase
+Capability
+Phase 1 — Now (build)
+Reactive decisions with structured logging. Every action logged to agent_decisions with outcome measurement at 48hrs.
+Phase 2 — 30 days
+Structured experiments using campaign_experiments table. Hypothesis + control group + measured outcome for every significant campaign change.
+Phase 3 — 90 days
+Pattern library. learning-agent reads campaign_experiments, identifies what variables correlate with wins vs losses per brand. Updates media-buyer-agent system prompts with specific learned strategies.
+Phase 4 — 6 months
+Simulation. With 6+ months of structured experiment data, Claude can reason over historical outcomes to predict impact of a proposed change before executing it. Ask: what happened the last 5 times BDN ROAS dropped below 0.5x and we reduced budget?
+Phase 5 — 12 months
+The system optimizes beyond human heuristics. Enough data to find non-obvious patterns — audience overlaps, day-of-week effects, offer fatigue cycles — that no human media buyer would identify manually.
+
+campaign_experiments Table — How to Use It Correctly
+This table already exists in the schema. The key is that media-buyer-agent must write structured experiments not just log actions.
+
+	•	experiment_type — what category of change: adset_pause, budget_change, creative_swap, offer_rotation, audience_refresh
+	•	hypothesis — plain text: 'This adset underperforms because of audience overlap with the GTH campaign'
+	•	variable_changed — exactly what was changed with before/after values as jsonb
+	•	control_group — what was held constant to isolate the variable
+	•	before_metrics — ROAS, CPL, conversion rate at time of decision
+	•	after_metrics — same metrics measured at end of measurement window
+	•	result — win (metric improved by >10%), loss (metric worsened), inconclusive (change <10%)
+	•	confidence — how many similar experiments support this result (builds over time)
+
+What This Unlocks for learning-agent
+Once campaign_experiments has 60+ rows with results, learning-agent can answer:
+
+	•	'Pausing adsets during the first 3 days of a campaign consistently worsens ROAS for BDN but improves it for GTH — why?'
+	•	'Budget increases above 2x daily average always trigger Facebook's learning phase reset — never do this mid-week'
+	•	'Creative fatigue on BDN shows up in CTR drop before ROAS drop — flag at CTR decline not ROAS decline'
+
+These are not rules you program in. These are patterns the system discovers from its own experiment history. That is what separates a reactive agent from a learning system.
+
+
+8. RECOMMENDED AGENTS
+
+email-agent — Layer 1 — Email Automation
+Your lead list is sitting idle in MailerLite. email-pilot posts a strategy doc on Mondays but nothing executes it. email-agent closes that gap and turns the existing list into recurring revenue with no extra ad spend.
+
+Property
+Detail
+Repo
+CBGROWTHOPS/email-agent (new)
+Deployment
+Railway — new service
+Brain
+Claude Sonnet — writes sequences, subject lines, offer angles
+Absorbs
+email-pilot from ai-agency
+
+Subagents
+	•	sequence-writer — generates multi-touch drip sequences per brand using Claude
+	•	engagement-monitor — tracks open rates, clicks, unsubscribes per sequence
+	•	offer-rotator — swaps offer links in emails based on MaxBounty conversion data
+	•	ab-tester — tests subject lines, picks winner after 4 hours, sends to remainder
+	•	list-cleaner — suppresses unengaged subscribers after threshold to protect deliverability
+
+Your Decision Points
+	•	Approve new sequence before it goes live
+	•	Approve major copy direction changes
+	•	Approve list suppression batches
+
+growth-agent — Layer 1 — Audience and Vertical Discovery
+Nobody is systematically finding new audiences or researching new verticals right now. growth-agent runs this loop continuously and surfaces ranked opportunities for you to act on.
+
+Property
+Detail
+Repo
+CBGROWTHOPS/growth-agent (new)
+Deployment
+Railway — new service
+Brain
+Claude Sonnet — analyzes research, scores opportunities
+Absorbs
+Community Reach Engine becomes community-scout subagent
+
+Subagents
+	•	community-scout — runs Community Reach Engine across Reddit, Facebook Groups, TikTok per brand ICP
+	•	vertical-scorer — researches new niches, scores on offer availability, CPC estimates, audience size
+	•	competitor-monitor — tracks what other affiliate funnels are running in your verticals
+	•	brief-enricher — feeds best audience insights directly into creative-agent creative briefs
+
+Your Decision Points
+	•	Approve pursuing a new vertical recommendation
+	•	Approve community outreach scripts before posting
+	•	Approve ICP data being fed into content briefs
+
+brand-agent — Layer 1 — New Brand Launch Automation
+Every new affiliate brand requires the same 9-step setup checklist across 8+ systems. brand-agent executes that entire checklist after you approve a launch — one Slack command instead of days of manual work.
+
+Property
+Detail
+Repo
+CBGROWTHOPS/brand-agent (new)
+Deployment
+Railway — new service
+Brain
+Claude Sonnet — generates brand configs, makes setup decisions
+Triggered by
+Your Slack command: brand launch [name] [vertical]
+
+Subagents
+	•	site-builder — clones funnel template, updates brand config, quiz, offer wall, copy, deploys to Vercel
+	•	domain-manager — Namecheap API: register domain, set DNS, connect to Vercel
+	•	pixel-installer — creates Facebook Pixel, injects into site, verifies firing in Events Manager
+	•	tracking-configurator — wires submit-lead Edge Function, fbclid capture, Bridge VALID_BRANDS + facebook.json
+	•	bemob-setup — creates BeMob campaign with correct goal URL macros
+	•	mailerlite-setup — creates MailerLite group, API key, welcome sequence placeholder
+	•	monday-setup — creates Monday board entries, registers with ai-agency and media-buyer-agent
+	•	qa-agent — end-to-end test: verifies lead → Supabase → MailerLite → Bridge CAPI → BeMob all fire
+
+Memory
+	•	site_deployments — every site built, domain, deploy URL, pixel ID, BeMob campaign ID
+	•	domain_registry — all owned domains, registrar, expiry, DNS config
+	•	qa_results — every QA run with pass/fail per step
+
+Your Decision Points
+	•	Approve the brand launch — brand-agent does nothing until you say go
+	•	Create Facebook Ad Account manually in Business Manager (requires your login)
+	•	Approve going live with ad spend after QA passes
+
+
+9. FULL AGENT MAP
+
+Agent
+Layer / Status
+Primary Domain
+cos
+Layer 0.5 — Building
+Command router, approval queue, orchestrator registry, briefing
+media-buyer-agent
+Layer 1 — Building
+Facebook Ads performance optimization
+video-agent
+Layer 1 — Recommended
+All video formats: reels, longform, ads, stories
+email-agent
+Layer 1 — Recommended
+MailerLite automation across all brands
+research-agent
+Layer 1 — Recommended
+Internet intelligence, knowledge base, feeds Reach
+analytics-agent
+Layer 1 — Recommended
+Operational intelligence, attribution modeling, anomaly detection, feeds Signal
+social-agent
+Layer 1 — Recommended
+All platform publishing: Facebook, Instagram, TikTok, YouTube, LinkedIn, X
+seo-agent
+Layer 1 — Recommended
+SEO, Search Console, GA4, content briefs, site deployment
+growth-agent
+Layer 1 — Recommended
+Audience discovery and vertical research
+brand-agent
+Layer 1 — Recommended
+New brand launch automation end to end
+creative-agent
+Layer 2 — Live
+Copy + image generation, Facebook page posting
+ai-agency
+Layer 3 — Live
+Monitoring, alerts, daily briefing, cron agents
+Signal
+Product — Live
+Performance dashboard SaaS — fed by analytics-agent, sold externally
+Bridge
+Product — Live
+CAPI relay SaaS — server-side conversion attribution, sold externally
+Warehouse
+Layer 4 — Live
+Supabase operational data — leads, events, spend, agent memory
+Knowledge Base
+Layer 4 — Live
+Supabase research data — research_records, community_profiles, trend_signals. Powers Reach.
+learning-agent
+CoS subagent — Recommended
+Weekly prompt optimization, pattern analysis, rollback on regression
+access-manager
+CoS subagent — Build with CoS
+Orchestrator credential provisioning via Keygent + Railway API
+identity-agent
+Layer 1 — V2
+Graduates from access-manager when managing external users, client accounts, product credentials
+doc-agent
+Layer 1 — Recommended
+Documentation, version control, spec generation, schema sync, drift detection
+
+

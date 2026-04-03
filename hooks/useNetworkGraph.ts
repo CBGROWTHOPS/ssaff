@@ -2,72 +2,115 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 
+// Real SSAFF brain nodes — from Obsidian knowledge graph
 export const NODES = [
-  { id: "agent-core", label: "agent-core" },
-  { id: "data-layer", label: "data-layer" },
-  { id: "conversion-bridge", label: "conversion-bridge" },
-  { id: "offer-network", label: "offer-network" },
-  { id: "optimization", label: "optimization" },
-  { id: "command-bus", label: "command-bus" },
-  { id: "paid-traffic", label: "paid-traffic" },
-  { id: "landing-system", label: "landing-system" },
-  { id: "lead-capture", label: "lead-capture" },
-  { id: "click-tracker", label: "click-tracker" },
-  { id: "email-system", label: "email-system" },
-  { id: "sms-gateway", label: "sms-gateway" },
-  { id: "postback-relay", label: "postback-relay" },
-  { id: "routing-engine", label: "routing-engine" },
-  { id: "attribution-core", label: "attribution-core" },
-  { id: "profit-monitor", label: "profit-monitor" },
-  { id: "geo-router", label: "geo-router" },
-  { id: "fraud-filter", label: "fraud-filter" },
-  { id: "session-sync", label: "session-sync" },
-  { id: "model-cache", label: "model-cache" },
-  { id: "event-stream", label: "event-stream" },
-  { id: "signal-engine", label: "signal-engine" },
+  { id: "SSAFF Home", label: "SSAFF" },
+  { id: "Layer 0 — Command", label: "Command" },
+  { id: "Layer 1 — Orchestrators", label: "Orchestrators" },
+  { id: "Layer 2 — Production", label: "Production" },
+  { id: "Layer 3 — Monitoring", label: "Monitoring" },
+  { id: "Layer 4 — Infrastructure", label: "Infrastructure" },
+  { id: "cos", label: "CoS" },
+  { id: "creative-agent", label: "Creative Agent" },
+  { id: "media-buyer-agent", label: "Media Buyer" },
+  { id: "analytics-agent", label: "Analytics" },
+  { id: "research-agent", label: "Research" },
+  { id: "seo-agent", label: "SEO" },
+  { id: "email-agent", label: "Email" },
+  { id: "growth-agent", label: "Growth" },
+  { id: "brand-agent", label: "Brand" },
+  { id: "social-agent", label: "Social" },
+  { id: "video-agent", label: "Video" },
+  { id: "doc-agent", label: "Docs" },
+  { id: "generate-ad-creative", label: "Ad Creative" },
+  { id: "daily-briefing", label: "Daily Brief" },
+  { id: "daily-optimization", label: "Optimization" },
+  { id: "analytics-pipeline", label: "Analytics Pipeline" },
+  { id: "creative-refresh", label: "Creative Refresh" },
+  { id: "content-repurpose", label: "Content Repurpose" },
+  { id: "weekly-learning", label: "Learning" },
+  { id: "warehouse-analytics", label: "Warehouse" },
+  { id: "knowledge-system", label: "Knowledge" },
+  { id: "learning-system", label: "Learning System" },
+  { id: "bdn", label: "BDN" },
+  { id: "gth", label: "GTH" },
+  { id: "fxg", label: "FXG" },
+  { id: "autonomy-rules", label: "Autonomy" },
+  { id: "constitution", label: "Constitution" },
+  { id: "thresholds", label: "Thresholds" },
+  { id: "human-in-the-loop", label: "Human Loop" },
+  { id: "conversion-postback-chain", label: "Postback Chain" },
+  { id: "audience-intelligence", label: "Audience Intel" },
+  { id: "competitor-monitoring", label: "Competitor Watch" },
+  { id: "Products", label: "Products" },
 ] as const;
 
-// Structure: agent-core→most, primary 2–3 each, peripheral 1 each
+// Real SSAFF brain connections — from Obsidian [[wiki-links]]
 export const EDGES: [string, string][] = [
-  ["agent-core", "data-layer"],
-  ["agent-core", "conversion-bridge"],
-  ["agent-core", "offer-network"],
-  ["agent-core", "optimization"],
-  ["agent-core", "profit-monitor"],
-  ["agent-core", "command-bus"],
-  ["agent-core", "postback-relay"],
-  ["agent-core", "landing-system"],
-  ["agent-core", "lead-capture"],
-  ["agent-core", "event-stream"],
-  ["data-layer", "conversion-bridge"],
-  ["conversion-bridge", "offer-network"],
-  ["offer-network", "postback-relay"],
-  ["postback-relay", "profit-monitor"],
-  ["optimization", "profit-monitor"],
-  ["command-bus", "routing-engine"],
-  ["routing-engine", "postback-relay"],
-  ["model-cache", "optimization"],
-  ["attribution-core", "profit-monitor"],
-  ["geo-router", "routing-engine"],
-  ["paid-traffic", "landing-system"],
-  ["click-tracker", "agent-core"],
-  ["email-system", "agent-core"],
-  ["sms-gateway", "agent-core"],
-  ["fraud-filter", "routing-engine"],
-  ["session-sync", "data-layer"],
-  ["signal-engine", "agent-core"],
+  // SSAFF Home hub
+  ["SSAFF Home", "Layer 0 — Command"], ["SSAFF Home", "Layer 1 — Orchestrators"],
+  ["SSAFF Home", "Layer 2 — Production"], ["SSAFF Home", "Layer 3 — Monitoring"],
+  ["SSAFF Home", "Layer 4 — Infrastructure"], ["SSAFF Home", "Products"],
+  // Command layer
+  ["Layer 0 — Command", "cos"], ["Layer 0 — Command", "human-in-the-loop"],
+  ["Layer 0 — Command", "constitution"], ["Layer 0 — Command", "autonomy-rules"],
+  // Orchestrators
+  ["Layer 1 — Orchestrators", "cos"], ["Layer 1 — Orchestrators", "daily-briefing"],
+  // Production agents
+  ["Layer 2 — Production", "creative-agent"], ["Layer 2 — Production", "media-buyer-agent"],
+  ["Layer 2 — Production", "seo-agent"], ["Layer 2 — Production", "email-agent"],
+  ["Layer 2 — Production", "social-agent"], ["Layer 2 — Production", "video-agent"],
+  ["Layer 2 — Production", "research-agent"], ["Layer 2 — Production", "growth-agent"],
+  ["Layer 2 — Production", "brand-agent"],
+  // Monitoring
+  ["Layer 3 — Monitoring", "analytics-agent"], ["Layer 3 — Monitoring", "analytics-pipeline"],
+  // Infrastructure
+  ["Layer 4 — Infrastructure", "warehouse-analytics"], ["Layer 4 — Infrastructure", "knowledge-system"],
+  ["Layer 4 — Infrastructure", "learning-system"],
+  // CoS connections
+  ["cos", "daily-briefing"], ["cos", "weekly-learning"], ["cos", "analytics-pipeline"],
+  ["cos", "knowledge-system"],
+  // Creative agent
+  ["creative-agent", "generate-ad-creative"], ["creative-agent", "creative-refresh"],
+  ["creative-agent", "content-repurpose"], ["creative-agent", "bdn"], ["creative-agent", "gth"],
+  // Media buyer
+  ["media-buyer-agent", "daily-optimization"], ["media-buyer-agent", "creative-refresh"],
+  ["media-buyer-agent", "bdn"], ["media-buyer-agent", "gth"], ["media-buyer-agent", "fxg"],
+  ["media-buyer-agent", "warehouse-analytics"], ["media-buyer-agent", "thresholds"],
+  // Analytics
+  ["analytics-agent", "analytics-pipeline"], ["analytics-agent", "warehouse-analytics"],
+  // Research
+  ["research-agent", "audience-intelligence"], ["research-agent", "competitor-monitoring"],
+  // Email
+  ["email-agent", "bdn"], ["email-agent", "gth"],
+  // Growth
+  ["growth-agent", "bdn"], ["growth-agent", "gth"],
+  // Brand connections
+  ["bdn", "generate-ad-creative"], ["bdn", "daily-optimization"],
+  ["gth", "generate-ad-creative"],
+  // Knowledge & learning
+  ["knowledge-system", "learning-system"], ["knowledge-system", "warehouse-analytics"],
+  ["learning-system", "weekly-learning"],
+  // Governance
+  ["autonomy-rules", "thresholds"], ["autonomy-rules", "human-in-the-loop"],
+  ["constitution", "autonomy-rules"],
+  // Workflows
+  ["daily-briefing", "analytics-pipeline"], ["daily-optimization", "warehouse-analytics"],
+  ["generate-ad-creative", "creative-refresh"],
+  ["conversion-postback-chain", "media-buyer-agent"],
 ];
 
 export const GRAB_RADIUS = 12;
 
 export const LABELS_ALWAYS_VISIBLE: readonly string[] = [
-  "agent-core", "data-layer", "conversion-bridge",
+  "SSAFF Home", "cos", "creative-agent", "media-buyer-agent", "bdn", "gth",
+  "Layer 0 — Command", "Layer 2 — Production", "knowledge-system",
 ];
 
 export const NODE_TYPES = {
-  core: ["agent-core"],
-  primary: ["data-layer", "conversion-bridge", "offer-network", "optimization", "profit-monitor"],
-  peripheral: ["command-bus", "paid-traffic", "landing-system", "lead-capture", "click-tracker", "email-system", "sms-gateway", "postback-relay", "routing-engine", "attribution-core", "geo-router", "fraud-filter", "session-sync", "model-cache", "event-stream", "signal-engine"],
+  core: ["SSAFF Home", "creative-agent", "media-buyer-agent", "generate-ad-creative", "analytics-pipeline", "daily-briefing", "bdn", "warehouse-analytics", "creative-refresh"],
+  primary: ["cos", "content-repurpose", "knowledge-system", "Layer 1 — Orchestrators", "weekly-learning", "autonomy-rules", "thresholds", "email-agent", "gth", "Layer 0 — Command", "analytics-agent", "brand-agent", "growth-agent", "learning-system", "Layer 2 — Production", "daily-optimization", "human-in-the-loop", "constitution", "doc-agent"],
+  peripheral: ["Layer 4 — Infrastructure", "research-agent", "seo-agent", "social-agent", "video-agent", "Layer 3 — Monitoring", "Products", "fxg", "audience-intelligence", "competitor-monitoring", "conversion-postback-chain"],
 } as const;
 
 function getNodeType(id: string): "core" | "primary" | "peripheral" {
