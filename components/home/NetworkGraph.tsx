@@ -381,12 +381,11 @@ export default function NetworkGraph() {
         ctx.shadowBlur = glow;
         ctx.shadowColor = `rgba(150, 200, 255, ${isCore ? 0.3 : isPrimary ? 0.12 : 0.05})`;
 
-        // Radial gradient: dark center → white/blue edge
+        // Radial gradient: transparent center → white edge
         const nodeGrad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, r);
-        nodeGrad.addColorStop(0, `rgba(6, 6, 10, ${opacity * 0.95})`);
-        nodeGrad.addColorStop(0.4, `rgba(20, 50, 100, ${opacity * 0.7})`);
-        nodeGrad.addColorStop(0.75, `rgba(120, 180, 255, ${opacity * 0.85})`);
-        nodeGrad.addColorStop(1, `rgba(220, 240, 255, ${opacity})`);
+        nodeGrad.addColorStop(0, `rgba(255, 255, 255, 0)`);
+        nodeGrad.addColorStop(0.6, `rgba(255, 255, 255, ${opacity * 0.3})`);
+        nodeGrad.addColorStop(1, `rgba(255, 255, 255, ${opacity})`);
 
         ctx.fillStyle = nodeGrad;
         ctx.beginPath();
