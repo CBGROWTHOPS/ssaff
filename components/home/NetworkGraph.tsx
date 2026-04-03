@@ -377,9 +377,9 @@ export default function NetworkGraph() {
         ctx.globalAlpha = nodeOpacity;
 
         const opacity = isCore ? breathingOpacity : isPrimary ? 0.8 : 0.25;
-        const glow = isCore ? 22 : isPrimary ? 10 : 1.5;
+        const glow = isCore ? 10 : isPrimary ? 4 : 1;
         ctx.shadowBlur = glow;
-        ctx.shadowColor = `rgba(150, 200, 255, ${isCore ? 0.5 : isPrimary ? 0.2 : 0.08})`;
+        ctx.shadowColor = `rgba(150, 200, 255, ${isCore ? 0.3 : isPrimary ? 0.12 : 0.05})`;
 
         // Radial gradient: dark center → white/blue edge
         const nodeGrad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, r);
