@@ -85,7 +85,7 @@ export default function BrainGraph() {
     container.appendChild(renderer.domElement);
 
     const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(0, 0, 6.5);
+    camera.position.set(0, -0.3, 7.5);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -159,102 +159,83 @@ export default function BrainGraph() {
           const coreWhite = new THREE.Color(0.85, 0.95, 1.0);
           const corePos = new THREE.Vector3(n.pos[0], n.pos[1], n.pos[2]);
 
-          // Hot center
-          const centerMat = new THREE.MeshBasicMaterial({ color: coreWhite, transparent: true, opacity: 0.9 });
-          const centerMesh = new THREE.Mesh(new THREE.SphereGeometry(0.05, 32, 32), centerMat);
+          // Core: gradient sphere (transparent center → colored edge) + pulse
+          const coreShader = new THREE.ShaderMaterial({
+            transparent: true, depthWrite: false,
+            uniforms: { uColor: { value: coreColor }, uTime: { value: 0.0 } },
+            vertexShader: `varying vec3 vNormal; void main() { vNormal = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+            fragmentShader: `uniform vec3 uColor; uniform float uTime; varying vec3 vNormal; void main() { float edge = 1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))); edge = pow(edge, 1.2); float pulse = 0.7 + 0.3 * sin(uTime * 2.5); gl_FragColor = vec4(uColor * 1.3, edge * pulse); }`,
+          });
+          coreShader.userData.isCoreShader = true;
+          const centerMesh = new THREE.Mesh(new THREE.SphereGeometry(0.18, 32, 32), coreShader);
           centerMesh.position.copy(corePos);
           nGroup.add(centerMesh);
           nodeMeshes.set(n.id, centerMesh);
 
-          // Inner glow
-          const innerGlow = new THREE.Mesh(new THREE.SphereGeometry(0.10, 24, 24),
-            new THREE.MeshBasicMaterial({ color: coreColor, transparent: true, opacity: 0.5 }));
+          // Inner pulse glow
+          const innerShader = new THREE.ShaderMaterial({
+            transparent: true, depthWrite: false,
+            uniforms: { uColor: { value: coreColor }, uTime: { value: 0.0 } },
+            vertexShader: `varying vec3 vNormal; void main() { vNormal = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+            fragmentShader: `uniform vec3 uColor; uniform float uTime; varying vec3 vNormal; void main() { float edge = 1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))); edge = pow(edge, 1.8); float pulse = 0.5 + 0.5 * sin(uTime * 2.0); gl_FragColor = vec4(uColor, edge * 0.5 * pulse); }`,
+          });
+          innerShader.userData.isCoreShader = true;
+          const innerGlow = new THREE.Mesh(new THREE.SphereGeometry(0.30, 24, 24), innerShader);
           innerGlow.position.copy(corePos);
           nGroup.add(innerGlow);
 
-          // Mid glow
-          const midGlow = new THREE.Mesh(new THREE.SphereGeometry(0.20, 20, 20),
-            new THREE.MeshBasicMaterial({ color: coreColor, transparent: true, opacity: 0.15 }));
-          midGlow.position.copy(corePos);
-          nGroup.add(midGlow);
-
-          // Outer haze
-          const outerGlow = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16),
-            new THREE.MeshBasicMaterial({ color: coreColor, transparent: true, opacity: 0.06, depthWrite: false }));
+          // Outer pulse haze
+          const outerShader = new THREE.ShaderMaterial({
+            transparent: true, depthWrite: false,
+            uniforms: { uColor: { value: coreColor }, uTime: { value: 0.0 } },
+            vertexShader: `varying vec3 vNormal; void main() { vNormal = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+            fragmentShader: `uniform vec3 uColor; uniform float uTime; varying vec3 vNormal; void main() { float edge = 1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))); edge = pow(edge, 2.5); float pulse = 0.4 + 0.6 * sin(uTime * 1.5 + 0.5); gl_FragColor = vec4(uColor, edge * 0.2 * pulse); }`,
+          });
+          outerShader.userData.isCoreShader = true;
+          const outerGlow = new THREE.Mesh(new THREE.SphereGeometry(0.50, 16, 16), outerShader);
           outerGlow.position.copy(corePos);
           nGroup.add(outerGlow);
 
-          // Concentric rings
-          for (let i = 1; i <= 5; i++) {
-            const innerR = 0.06 + i * 0.035;
-            const outerR = innerR + (i <= 2 ? 0.012 : 0.006);
-            const ring = new THREE.Mesh(
-              new THREE.RingGeometry(innerR, outerR, 64),
-              new THREE.MeshBasicMaterial({
-                color: i <= 2 ? coreWhite : coreColor,
-                transparent: true, opacity: i <= 2 ? 0.6 : 0.3 - i * 0.03,
-                side: THREE.DoubleSide,
-              })
-            );
-            ring.position.copy(corePos);
-            ring.userData.isArcRing = true;
-            ring.userData.ringIndex = i;
-            nGroup.add(ring);
-          }
-
-          // Radial spokes
-          for (let s = 0; s < 12; s++) {
-            const angle = (s / 12) * Math.PI * 2;
-            const spoke = new THREE.Line(
-              new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(Math.cos(angle) * 0.07, Math.sin(angle) * 0.07, 0),
-                new THREE.Vector3(Math.cos(angle) * 0.22, Math.sin(angle) * 0.22, 0),
-              ]),
-              new THREE.LineBasicMaterial({ color: coreColor, transparent: true, opacity: 0.35 })
-            );
-            spoke.position.copy(corePos);
-            spoke.userData.isArcRing = true;
-            nGroup.add(spoke);
-          }
-
-          // Triangle segments
-          for (let s = 0; s < 12; s++) {
-            const a1 = (s / 12) * Math.PI * 2;
-            const a2 = ((s + 0.5) / 12) * Math.PI * 2;
-            const tri = new THREE.Mesh(
-              new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(Math.cos(a1) * 0.12, Math.sin(a1) * 0.12, 0),
-                new THREE.Vector3(Math.cos(a2) * 0.17, Math.sin(a2) * 0.17, 0),
-                new THREE.Vector3(Math.cos(a1 + 0.15) * 0.12, Math.sin(a1 + 0.15) * 0.12, 0),
-              ]),
-              new THREE.MeshBasicMaterial({ color: coreColor, transparent: true, opacity: 0.2, side: THREE.DoubleSide })
-            );
-            tri.position.copy(corePos);
-            tri.userData.isArcRing = true;
-            nGroup.add(tri);
-          }
         } else {
-          // Original style: small glowing spheres
-          const isCore = n.type === "agent";
-          const isPrimary = n.type === "system";
-          const r = isCore ? 0.04 : isPrimary ? 0.03 : 0.015;
-          const opacity = isCore ? 0.8 : isPrimary ? 0.6 : 0.3;
-          const glowR = isCore ? 0.08 : isPrimary ? 0.06 : 0;
+          // Gradient node: transparent center → colored edges
+          const isAgent = n.type === "agent";
+          const isSystem = n.type === "system";
+          const r = isAgent ? 0.05 : isSystem ? 0.035 : 0.018;
 
-          // Node sphere
-          const mat = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity });
-          const mesh = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 16), mat);
+          const nodeShaderMat = new THREE.ShaderMaterial({
+            transparent: true,
+            depthWrite: false,
+            uniforms: {
+              uColor: { value: col },
+              uOpacity: { value: isAgent ? 0.85 : isSystem ? 0.65 : 0.35 },
+            },
+            vertexShader: `
+              varying vec3 vNormal;
+              varying vec3 vPosition;
+              void main() {
+                vNormal = normalize(normalMatrix * normal);
+                vPosition = position;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+              }
+            `,
+            fragmentShader: `
+              uniform vec3 uColor;
+              uniform float uOpacity;
+              varying vec3 vNormal;
+              varying vec3 vPosition;
+              void main() {
+                float edge = 1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0)));
+                edge = pow(edge, 1.5);
+                gl_FragColor = vec4(uColor, edge * uOpacity);
+              }
+            `,
+          });
+
+          const mesh = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 24), nodeShaderMat);
           mesh.position.set(n.pos[0], n.pos[1], n.pos[2]);
           nGroup.add(mesh);
           nodeMeshes.set(n.id, mesh);
 
-          // Glow halo for agents/systems
-          if (glowR > 0) {
-            const glowMat = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.12, depthWrite: false });
-            const glow = new THREE.Mesh(new THREE.SphereGeometry(glowR, 12, 12), glowMat);
-            glow.position.set(n.pos[0], n.pos[1], n.pos[2]);
-            nGroup.add(glow);
-          }
         }
       });
       group.add(nGroup);
@@ -274,7 +255,7 @@ export default function BrainGraph() {
         const geo = new THREE.BufferGeometry().setFromPoints(curve.getPoints(20));
 
         const yA = (a.pos[1] + 1.2) / 2.4;
-        const mat = new THREE.LineBasicMaterial({ color: colorAtY(yA), transparent: true, opacity: 0.06 });
+        const mat = new THREE.LineBasicMaterial({ color: colorAtY(yA), transparent: true, opacity: 0.12 });
         eGroup.add(new THREE.Line(geo, mat));
       });
       group.add(eGroup);
@@ -295,8 +276,8 @@ export default function BrainGraph() {
       if (n.type === "dot") return;
       const el = document.createElement("div");
       el.textContent = n.label;
-      const color = n.type === "core" ? "rgba(130,220,255,0.85)" : "rgba(150,200,255,0.5)";
-      const font = n.type === "core" ? "600 11px" : "400 9px";
+      const color = n.type === "core" ? "rgba(160,230,255,1)" : "rgba(180,215,255,0.85)";
+      const font = n.type === "core" ? "600 12px" : "500 10px";
       el.style.cssText = `position:absolute;font:${font} system-ui,sans-serif;color:${color};white-space:nowrap;transform:translate(-50%,8px);`;
       labelDiv.appendChild(el);
       labelEls.set(n.id, el);
@@ -321,12 +302,20 @@ export default function BrainGraph() {
           }
         });
 
-        // Core breathing
+        // Core pulse — update shader time uniforms
+        if (nodesGroup) {
+          nodesGroup.traverse((child) => {
+            if (child instanceof THREE.Mesh && child.material instanceof THREE.ShaderMaterial && child.material.userData?.isCoreShader) {
+              child.material.uniforms.uTime.value = elapsed;
+            }
+          });
+        }
+
+        // Core scale breathing
         const coreNode = nodeMeshes.get("ssaff");
         if (coreNode) {
-          const s = 1 + Math.sin(elapsed * 1.5) * 0.1;
+          const s = 1 + Math.sin(elapsed * 1.5) * 0.08;
           coreNode.scale.setScalar(s);
-          (coreNode.material as THREE.MeshBasicMaterial).opacity = 0.8 + Math.sin(elapsed * 2) * 0.15;
         }
 
         // Face camera for arc reactor elements
@@ -354,9 +343,9 @@ export default function BrainGraph() {
               el.style.display = "";
               el.style.left = `${(projected.x * 0.5 + 0.5) * window.innerWidth}px`;
               el.style.top = `${(-projected.y * 0.5 + 0.5) * window.innerHeight}px`;
-              const depthFade = Math.max(0, Math.min(1, 1 - projected.z * 0.5));
+              const depthFade = Math.max(0.15, Math.min(1, 1 - projected.z * 0.4));
               const node = AGENT_NODES.find(nn => nn.id === id);
-              el.style.opacity = `${(node?.type === "core" ? 0.85 : 0.55) * depthFade}`;
+              el.style.opacity = `${(node?.type === "core" ? 1 : 0.8) * depthFade}`;
             }
           }
         });
