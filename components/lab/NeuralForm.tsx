@@ -63,16 +63,9 @@ function Form({
     const t = state.clock.elapsedTime;
     const p = Math.min(1, Math.max(0, progress.current ?? 0));
 
-    // Beat centers (mirror of BEATS mid-points in app/page.tsx). The form is
-    // ASSEMBLED on a beat and blooms apart only in the gaps between them, so
-    // reassembly always lands exactly as the text settles — never before it.
-    const ANCHORS = [0.09, 0.4, 0.72, 0.94];
-    let d = 1;
-    for (const a of ANCHORS) d = Math.min(d, Math.abs(p - a));
-    const norm = Math.min(1, Math.max(0, (d - 0.04) / 0.16));
-    const smooth = norm * norm * (3 - 2 * norm); // smoothstep
-    const breathe = 0.035 * (0.5 + 0.5 * Math.sin(t * 0.45));
-    const explode = (smooth + breathe) * amp;
+    // Assembled on entry (p=0 -> 0), one dissolve through the middle,
+    // reassembled at the end. Single arc, no multiple blooms.
+    const explode = Math.sin(p * Math.PI) * amp;
 
     const geo = pts.current?.geometry;
     if (geo) {
