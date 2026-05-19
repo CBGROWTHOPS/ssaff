@@ -15,8 +15,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SSAFF — Agentic Marketing Infrastructure",
-  description: "Agentic marketing infrastructure powered by AI.",
+  title: "SSAFF",
+  description: "Private system architecture.",
 };
 
 export default function RootLayout({
@@ -28,7 +28,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${spaceGrotesk.variable} ${inter.variable} antialiased`}
-        style={{ background: "#0b0b0c" }}
+        style={{ background: "#FAFAF7" }}
       >
         {children}
       </body>
