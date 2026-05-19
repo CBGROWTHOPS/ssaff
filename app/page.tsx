@@ -31,26 +31,19 @@ type BeatDef = {
 };
 
 const BEATS: BeatDef[] = [
-  { at: [0.03, 0.15], label: "SSAFF", line: "One system." },
+  { at: [0.0, 0.18], label: "SSAFF", line: "One system." },
   {
-    at: [0.2, 0.34],
-    label: "what it is",
-    line: "Marketing teams are people calling APIs.",
-    accent: "This is the API.",
-  },
-  {
-    at: [0.4, 0.54],
+    at: [0.3, 0.5],
     label: "what it does",
     line: "create. allocate. attribute. return.",
     nowrap: true,
   },
   {
-    at: [0.6, 0.74],
-    label: "principles",
+    at: [0.62, 0.82],
+    label: "principle",
     line: "Compound the stack. Never the team.",
-    accent: "Boring infrastructure beats novel anything.",
   },
-  { at: [0.82, 0.97], label: "contact", line: "If you know, you know." },
+  { at: [0.88, 1.0], label: "contact", line: "If you know, you know." },
 ];
 
 // Bare names only — no thumbnails, no descriptions, no "client".
@@ -213,7 +206,7 @@ export default function HomePage() {
     <SmoothScroll>
       <main style={{ background: BG }}>
         <ScrollHint progress={scrollYProgress} />
-        <div ref={ref} style={{ height: "760vh", position: "relative" }}>
+        <div ref={ref} style={{ height: "520vh", position: "relative" }}>
           <div
             style={{
               position: "sticky",
