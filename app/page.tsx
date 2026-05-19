@@ -26,7 +26,7 @@ const BEATS = [
   {
     at: [0.3, 0.5],
     label: "what it does",
-    line: "It generates. It buys. It closes.",
+    line: "create. allocate. attribute. return.",
   },
   {
     at: [0.62, 0.82],
@@ -119,6 +119,44 @@ function Beat({
   );
 }
 
+function ScrollHint({
+  progress,
+}: {
+  progress: ReturnType<typeof useScroll>["scrollYProgress"];
+}) {
+  const scaleY = useTransform(progress, (v) =>
+    Math.min(1, Math.max(0, v))
+  );
+  const opacity = useTransform(progress, (v) =>
+    v >= 0.985 ? Math.max(0, 1 - (v - 0.985) / 0.015) : 1
+  );
+  return (
+    <motion.div
+      style={{
+        opacity,
+        position: "fixed",
+        right: "clamp(16px, 3vw, 32px)",
+        top: "39vh",
+        height: "22vh",
+        width: 1,
+        background: "rgba(22,22,26,0.10)",
+        zIndex: 20,
+        pointerEvents: "none",
+      }}
+    >
+      <motion.div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "#F0594B",
+          transformOrigin: "top",
+          scaleY,
+        }}
+      />
+    </motion.div>
+  );
+}
+
 export default function HomePage() {
   const ref = useRef<HTMLDivElement>(null);
   const scrollVal = useRef(0);
@@ -133,6 +171,7 @@ export default function HomePage() {
   return (
     <SmoothScroll>
       <main style={{ background: BG }}>
+        <ScrollHint progress={scrollYProgress} />
         <div ref={ref} style={{ height: "520vh", position: "relative" }}>
           <div
             style={{

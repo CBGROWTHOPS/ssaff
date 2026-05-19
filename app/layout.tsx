@@ -15,8 +15,21 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://ssaff.co"),
   title: "SSAFF",
   description: "Private system architecture.",
+  openGraph: {
+    title: "SSAFF",
+    description: "Private system architecture.",
+    url: "https://ssaff.co",
+    siteName: "SSAFF",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SSAFF",
+    description: "Private system architecture.",
+  },
 };
 
 export default function RootLayout({

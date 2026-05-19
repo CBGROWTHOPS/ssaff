@@ -1,6 +1,12 @@
 "use client";
 
-import { useMemo, useRef, type RefObject } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -61,8 +67,18 @@ function Form({
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
-    const p = progress.current ?? 0;
-    const explode = Math.sin(Math.min(Math.max(p, 0), 1) * Math.PI) * amp;
+    const p = Math.min(1, Math.max(0, progress.current ?? 0));
+
+    // Beat centers (mirror of BEATS mid-points in app/page.tsx). The form is
+    // ASSEMBLED on a beat and blooms apart only in the gaps between them, so
+    // reassembly always lands exactly as the text settles — never before it.
+    const ANCHORS = [0.09, 0.4, 0.72, 0.94];
+    let d = 1;
+    for (const a of ANCHORS) d = Math.min(d, Math.abs(p - a));
+    const norm = Math.min(1, Math.max(0, (d - 0.04) / 0.16));
+    const smooth = norm * norm * (3 - 2 * norm); // smoothstep
+    const breathe = 0.035 * (0.5 + 0.5 * Math.sin(t * 0.45));
+    const explode = (smooth + breathe) * amp;
 
     const geo = pts.current?.geometry;
     if (geo) {
@@ -123,14 +139,35 @@ export default function NeuralForm({
   progress: RefObject<number>;
 }) {
   const { count, calm } = useMemo(deviceProfile, []);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setShown(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
   return (
-    <Canvas
-      camera={{ position: [0, 0, 5.2], fov: 42 }}
-      dpr={[1, 1.6]}
-      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-      style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        pointerEvents: "none",
+        opacity: shown ? 1 : 0,
+        transform: shown ? "translateY(0)" : "translateY(10px)",
+        transition:
+          "opacity 900ms cubic-bezier(0.16,1,0.3,1), transform 900ms cubic-bezier(0.16,1,0.3,1)",
+      }}
     >
-      <Form progress={progress} count={count} calm={calm} />
-    </Canvas>
+      <Canvas
+        camera={{ position: [0, 0, 5.2], fov: 42 }}
+        dpr={[1, 1.6]}
+        gl={{
+          antialias: true,
+          alpha: true,
+          powerPreference: "high-performance",
+        }}
+        style={{ position: "absolute", inset: 0 }}
+      >
+        <Form progress={progress} count={count} calm={calm} />
+      </Canvas>
+    </div>
   );
 }
