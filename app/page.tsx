@@ -31,19 +31,19 @@ type BeatDef = {
 };
 
 const BEATS: BeatDef[] = [
-  { at: [0.0, 0.18], label: "SSAFF", line: "One system." },
+  { at: [0.0, 0.18], label: "SSAFF", line: "one system." },
   {
     at: [0.3, 0.5],
     label: "what it does",
-    line: "create. allocate. attribute. return.",
+    line: "Create. Allocate. Attribute. Return.",
     nowrap: true,
   },
   {
     at: [0.62, 0.82],
     label: "principle",
-    line: "Compound the stack. Never the team.",
+    line: "compound the stack. never the team.",
   },
-  { at: [0.88, 1.0], label: "contact", line: "If you know, you know." },
+  { at: [0.88, 1.0], label: "contact", line: "if you know, you know." },
 ];
 
 // Bare names only — no thumbnails, no descriptions, no "client".
