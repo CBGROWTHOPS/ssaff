@@ -17,23 +17,40 @@ const NeuralForm = dynamic(() => import("@/components/lab/NeuralForm"), {
 const INK = "#16161A";
 const MUTED = "rgba(22,22,26,0.42)";
 const FAINT = "rgba(22,22,26,0.30)";
+const CORAL = "#F0594B";
 const BG = "#FAFAF7";
 const display = "var(--font-space-grotesk), sans-serif";
 const ui = "var(--font-inter), sans-serif";
 
-const BEATS = [
-  { at: [0.0, 0.18], label: "SSAFF", line: "One system." },
+type BeatDef = {
+  at: number[];
+  label: string;
+  line: string;
+  accent?: string;
+  nowrap?: boolean;
+};
+
+const BEATS: BeatDef[] = [
+  { at: [0.03, 0.15], label: "SSAFF", line: "One system." },
   {
-    at: [0.3, 0.5],
+    at: [0.2, 0.34],
+    label: "what it is",
+    line: "Marketing teams are people calling APIs.",
+    accent: "This is the API.",
+  },
+  {
+    at: [0.4, 0.54],
     label: "what it does",
     line: "create. allocate. attribute. return.",
+    nowrap: true,
   },
   {
-    at: [0.62, 0.82],
-    label: "principle",
+    at: [0.6, 0.74],
+    label: "principles",
     line: "Compound the stack. Never the team.",
+    accent: "Boring infrastructure beats novel anything.",
   },
-  { at: [0.88, 1.0], label: "contact", line: "If you know, you know." },
+  { at: [0.82, 0.97], label: "contact", line: "If you know, you know." },
 ];
 
 // Bare names only — no thumbnails, no descriptions, no "client".
@@ -46,11 +63,15 @@ function Beat({
   range,
   label,
   line,
+  accent,
+  nowrap,
   progress,
 }: {
   range: number[];
   label: string;
   line: string;
+  accent?: string;
+  nowrap?: boolean;
   progress: ReturnType<typeof useScroll>["scrollYProgress"];
 }) {
   const [s, e] = range;
@@ -105,16 +126,36 @@ function Beat({
         style={{
           fontFamily: display,
           fontWeight: 300,
-          fontSize: "clamp(26px, 6.4vw, 64px)",
+          fontSize: nowrap
+            ? "clamp(17px, 4.6vw, 46px)"
+            : "clamp(26px, 6.4vw, 64px)",
           lineHeight: 1.16,
           letterSpacing: "-0.02em",
           color: INK,
           margin: 0,
-          maxWidth: 900,
+          maxWidth: nowrap ? "none" : 900,
+          whiteSpace: nowrap ? "nowrap" : "normal",
         }}
       >
         {line}
       </p>
+      {accent && (
+        <p
+          style={{
+            fontFamily: display,
+            fontWeight: 300,
+            fontSize: "clamp(20px, 4.6vw, 44px)",
+            lineHeight: 1.16,
+            letterSpacing: "-0.02em",
+            color: CORAL,
+            margin: 0,
+            marginTop: 14,
+            maxWidth: 900,
+          }}
+        >
+          {accent}
+        </p>
+      )}
     </motion.div>
   );
 }
@@ -172,7 +213,7 @@ export default function HomePage() {
     <SmoothScroll>
       <main style={{ background: BG }}>
         <ScrollHint progress={scrollYProgress} />
-        <div ref={ref} style={{ height: "520vh", position: "relative" }}>
+        <div ref={ref} style={{ height: "760vh", position: "relative" }}>
           <div
             style={{
               position: "sticky",
@@ -188,6 +229,8 @@ export default function HomePage() {
                 range={b.at}
                 label={b.label}
                 line={b.line}
+                accent={b.accent}
+                nowrap={b.nowrap}
                 progress={scrollYProgress}
               />
             ))}
