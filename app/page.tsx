@@ -255,6 +255,7 @@ function Closing() {
           style={{
             fontFamily: display,
             fontWeight: 300,
+            fontStyle: "italic",
             fontSize: "clamp(64px, 14vw, 180px)",
             letterSpacing: "-0.04em",
             color: INK,

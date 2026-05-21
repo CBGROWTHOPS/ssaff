@@ -31,6 +31,7 @@ export default function OG() {
             style={{
               fontSize: 132,
               fontWeight: 300,
+              fontStyle: "italic",
               letterSpacing: "-4px",
               color: "#16161A",
             }}
