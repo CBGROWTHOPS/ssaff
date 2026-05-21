@@ -46,12 +46,6 @@ const BEATS: BeatDef[] = [
   { at: [0.88, 1.0], label: "contact", line: "If you know, you know." },
 ];
 
-// Bare names only — no thumbnails, no descriptions, no "client".
-// Reads as "systems that exist", not a portfolio.
-const SYSTEMS: { name: string; href: string }[] = [
-  { name: "NA Blinds", href: "https://nablinds.co" },
-];
-
 function Beat({
   range,
   label,
@@ -259,54 +253,17 @@ function Closing() {
       >
         <span
           style={{
-            fontFamily: ui,
-            fontSize: 11,
-            letterSpacing: "0.26em",
-            textTransform: "uppercase",
-            color: MUTED,
-            marginBottom: 40,
-          }}
-        >
-          selected systems
-        </span>
-
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 18,
+            fontFamily: display,
+            fontWeight: 300,
+            fontSize: "clamp(64px, 14vw, 180px)",
+            letterSpacing: "-0.04em",
+            color: INK,
+            lineHeight: 1,
             marginBottom: 96,
           }}
         >
-          {SYSTEMS.map((s) => (
-            <a
-              key={s.name}
-              href={s.href}
-              target="_blank"
-              rel="noreferrer"
-              style={{
-                fontFamily: display,
-                fontWeight: 300,
-                fontSize: "clamp(26px, 5.2vw, 48px)",
-                letterSpacing: "-0.02em",
-                color: INK,
-                textDecoration: "none",
-                borderBottom: "1px solid transparent",
-                paddingBottom: 3,
-                transition: "border-color 240ms ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderBottomColor = "#F0594B";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderBottomColor = "transparent";
-              }}
-            >
-              {s.name}
-            </a>
-          ))}
-        </div>
+          SSAFF
+        </span>
 
         <a
           href="mailto:chris@ssaff.co"
