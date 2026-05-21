@@ -288,7 +288,7 @@ function Closing() {
             marginTop: 28,
           }}
         >
-          private system architecture · © 2026 SSAFF
+          marketing company · © 2026 SSAFF
         </span>
       </motion.div>
     </section>

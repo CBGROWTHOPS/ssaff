@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "SSAFF — private system architecture";
+export const alt = "SSAFF — marketing company";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -56,7 +56,7 @@ export default function OG() {
             color: "rgba(22,22,26,0.42)",
           }}
         >
-          private system architecture
+          marketing company
         </div>
       </div>
     ),
