@@ -17,3 +17,35 @@ body {
   color: var(--foreground);
   font-family: var(--font-inter), system-ui, sans-serif;
 }
+
+.legal-prose p {
+  margin: 0 0 18px;
+}
+.legal-prose h2 {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  color: #16161A;
+  margin: 44px 0 14px;
+}
+.legal-prose ul {
+  margin: 0 0 18px;
+  padding-left: 22px;
+}
+.legal-prose li {
+  margin-bottom: 8px;
+}
+.legal-prose a {
+  color: #16161A;
+  text-decoration: underline;
+  text-decoration-color: rgba(22,22,26,0.30);
+  text-underline-offset: 3px;
+}
+.legal-prose a:hover {
+  text-decoration-color: #F0594B;
+}
+.legal-prose strong {
+  color: #16161A;
+  font-weight: 500;
+}

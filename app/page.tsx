@@ -1,24 +1,18 @@
 "use client";
 
 import { useRef } from "react";
-import dynamic from "next/dynamic";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useMotionValueEvent,
-} from "framer-motion";
+import Link from "next/link";
+import { motion, useScroll, useTransform } from "framer-motion";
 import SmoothScroll from "@/components/home/SmoothScroll";
-
-const NeuralForm = dynamic(() => import("@/components/lab/NeuralForm"), {
-  ssr: false,
-});
+import VideoBackground from "@/components/home/VideoBackground";
 
 const INK = "#16161A";
 const MUTED = "rgba(22,22,26,0.42)";
 const FAINT = "rgba(22,22,26,0.30)";
 const CORAL = "#F0594B";
 const BG = "#FAFAF7";
+const ON_VIDEO_INK = "#FFFFFF";
+const ON_VIDEO_MUTED = "rgba(255,255,255,0.68)";
 const display = "var(--font-space-grotesk), sans-serif";
 const ui = "var(--font-inter), sans-serif";
 
@@ -31,19 +25,14 @@ type BeatDef = {
 };
 
 const BEATS: BeatDef[] = [
-  { at: [0.0, 0.18], label: "SSAFF", line: "One system." },
+  { at: [0.0, 0.2], label: "Marketing company", line: "SSAFF" },
   {
-    at: [0.3, 0.5],
-    label: "what it does",
-    line: "Create. Allocate. Attribute. Return.",
-    nowrap: true,
+    at: [0.35, 0.55],
+    label: "Operating",
+    line: "Multi-brand publisher.",
+    accent: "Branding · Lead generation · E-commerce",
   },
-  {
-    at: [0.62, 0.82],
-    label: "principle",
-    line: "Compound the stack. Never the team.",
-  },
-  { at: [0.88, 1.0], label: "contact", line: "If you know, you know." },
+  { at: [0.75, 1.0], label: "Approach", line: "There are no limits." },
 ];
 
 function Beat({
@@ -103,7 +92,7 @@ function Beat({
           fontSize: "clamp(10px, 2.6vw, 11px)",
           letterSpacing: "0.26em",
           textTransform: "uppercase",
-          color: MUTED,
+          color: ON_VIDEO_MUTED,
           marginBottom: 24,
         }}
       >
@@ -118,7 +107,7 @@ function Beat({
             : "clamp(26px, 6.4vw, 64px)",
           lineHeight: 1.16,
           letterSpacing: "-0.02em",
-          color: INK,
+          color: ON_VIDEO_INK,
           margin: 0,
           maxWidth: nowrap ? "none" : 900,
           whiteSpace: nowrap ? "nowrap" : "normal",
@@ -167,7 +156,7 @@ function ScrollHint({
         top: "39vh",
         height: "22vh",
         width: 1,
-        background: "rgba(22,22,26,0.10)",
+        background: "rgba(255,255,255,0.22)",
         zIndex: 20,
         pointerEvents: "none",
       }}
@@ -187,13 +176,9 @@ function ScrollHint({
 
 export default function HomePage() {
   const ref = useRef<HTMLDivElement>(null);
-  const scrollVal = useRef(0);
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end end"],
-  });
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
-    scrollVal.current = v;
   });
 
   return (
@@ -209,7 +194,7 @@ export default function HomePage() {
               overflow: "hidden",
             }}
           >
-            <NeuralForm progress={scrollVal} />
+            <VideoBackground progress={scrollYProgress} />
             {BEATS.map((b) => (
               <Beat
                 key={b.label}
@@ -266,19 +251,34 @@ function Closing() {
           SSAFF
         </span>
 
-        <a
-          href="mailto:chris@ssaff.co"
+        <div
           style={{
+            marginTop: 32,
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            gap: 24,
             fontFamily: ui,
-            fontSize: 11,
+            fontSize: 10,
             letterSpacing: "0.18em",
             textTransform: "uppercase",
             color: FAINT,
-            textDecoration: "none",
           }}
         >
-          chris@ssaff.co
-        </a>
+          <Link href="/partners" style={{ color: FAINT, textDecoration: "none" }}>
+            Partners
+          </Link>
+          <Link href="/contact" style={{ color: FAINT, textDecoration: "none" }}>
+            Contact
+          </Link>
+          <Link href="/privacy" style={{ color: FAINT, textDecoration: "none" }}>
+            Privacy
+          </Link>
+          <Link href="/terms" style={{ color: FAINT, textDecoration: "none" }}>
+            Terms
+          </Link>
+        </div>
+
         <span
           style={{
             fontFamily: ui,
@@ -286,10 +286,22 @@ function Closing() {
             letterSpacing: "0.14em",
             textTransform: "uppercase",
             color: FAINT,
-            marginTop: 28,
+            marginTop: 24,
           }}
         >
-          marketing company · © 2026 SSAFF
+          marketing company · © 2026 SSAFF LLC
+        </span>
+        <span
+          style={{
+            fontFamily: ui,
+            fontSize: 10,
+            letterSpacing: "0.14em",
+            textTransform: "none",
+            color: FAINT,
+            marginTop: 6,
+          }}
+        >
+          407 Lincoln Rd Suite 6H PMB 1834, Miami Beach, FL 33139
         </span>
       </motion.div>
     </section>
