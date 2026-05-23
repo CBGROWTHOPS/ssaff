@@ -22,6 +22,7 @@ type BeatDef = {
   line: string;
   accent?: string;
   nowrap?: boolean;
+  italic?: boolean;
 };
 
 const BEATS: BeatDef[] = [
@@ -41,6 +42,7 @@ function Beat({
   line,
   accent,
   nowrap,
+  italic,
   progress,
 }: {
   range: number[];
@@ -48,6 +50,7 @@ function Beat({
   line: string;
   accent?: string;
   nowrap?: boolean;
+  italic?: boolean;
   progress: ReturnType<typeof useScroll>["scrollYProgress"];
 }) {
   const [s, e] = range;
@@ -102,11 +105,12 @@ function Beat({
         style={{
           fontFamily: display,
           fontWeight: 300,
+          fontStyle: italic ? "italic" : "normal",
           fontSize: nowrap
             ? "clamp(17px, 4.6vw, 46px)"
             : "clamp(26px, 6.4vw, 64px)",
           lineHeight: 1.16,
-          letterSpacing: "-0.02em",
+          letterSpacing: italic ? "-0.04em" : "-0.02em",
           color: ON_VIDEO_INK,
           margin: 0,
           maxWidth: nowrap ? "none" : 900,
@@ -203,6 +207,7 @@ export default function HomePage() {
                 line={b.line}
                 accent={b.accent}
                 nowrap={b.nowrap}
+                italic={b.italic}
                 progress={scrollYProgress}
               />
             ))}
