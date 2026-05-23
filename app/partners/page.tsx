@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import LegalShell from "@/components/legal/LegalShell";
 
 export const metadata: Metadata = {
@@ -15,7 +16,77 @@ export default function PartnersPage() {
       updated="May 22, 2026"
     >
       <p>
-        Information for partner compliance and onboarding review.
+        SSAFF operates a portfolio of{" "}
+        <Link href="/properties" style={{ color: "inherit" }}>
+          owned brands
+        </Link>{" "}
+        across lead generation, e-commerce, and content. We run our own
+        media, our own lists, and our own infrastructure end to end.
+      </p>
+
+      <h2>How we work with partners</h2>
+      <p>
+        We work directly with advertisers, networks, and operators on a
+        few defined shapes:
+      </p>
+      <ul>
+        <li>
+          <strong>Direct advertiser deals.</strong> CPL, CPA, or revenue
+          share against our own traffic. Tier 1 geos. Volume scales with
+          payout and offer fit.
+        </li>
+        <li>
+          <strong>Affiliate network publisher.</strong> Active publisher
+          across major performance networks. Compliance information below.
+        </li>
+        <li>
+          <strong>Operator-to-operator.</strong> Bespoke arrangements with
+          other publishers, agencies, or media buyers — co-buys, list
+          rentals, traffic swaps. Inbound by referral.
+        </li>
+      </ul>
+
+      <h2>What we run</h2>
+      <p>
+        Three shapes of work: lead generation against our owned media,
+        pay-per-call campaigns, and lead generation for local services
+        businesses on a client basis. Common categories include health
+        &amp; subsidy, financial services, home services, gig economy,
+        and consumer rewards. Tier 1 geos (US, CA, UK, AU, NZ).
+        Compliance posture is tightest in regulated verticals — we do
+        not run anything that requires licensure we do not hold.
+      </p>
+
+      <h2>Channels</h2>
+      <p>
+        We operate paid social, email (owned lists, verified opt-in),
+        organic and paid search, and a small set of arbitrage channels.
+        Traffic is server-side tracked end to end with conversion data
+        flowing to first-party warehouses and CAPI.
+      </p>
+
+      <h2>What we don&apos;t do</h2>
+      <ul>
+        <li>No incentivized opt-ins without disclosure at the point of capture.</li>
+        <li>No iframe, popunder, toolbar, or PPV traffic.</li>
+        <li>No co-registration or list rentals without explicit partner sign-off.</li>
+        <li>No SMS or outbound dialing from SSAFF directly.</li>
+        <li>No traffic from sources we cannot audit end to end.</li>
+      </ul>
+
+      <h2>Compliance</h2>
+      <p>
+        <strong>CAN-SPAM:</strong> All commercial email includes a physical
+        address and one-click unsubscribe. Suppression lists are honored
+        across every property within 24 hours.<br />
+        <strong>TCPA:</strong> Where phone consent applies, we collect
+        named-seller consent with audit trails. We do not place outbound
+        calls from SSAFF directly.<br />
+        <strong>State privacy laws:</strong> CCPA / CPA / CTDPA opt-out
+        and deletion requests routed through{" "}
+        <a href="mailto:privacy@ssaff.co">privacy@ssaff.co</a>.<br />
+        <strong>Incentives:</strong> Where used, fully disclosed at the
+        point of opt-in per FTC guidance.
       </p>
 
       <h2>Business information</h2>
@@ -24,27 +95,16 @@ export default function PartnersPage() {
         <strong>Entity type:</strong> Florida limited liability company<br />
         <strong>Address:</strong> 407 Lincoln Rd, Suite 6H PMB 1834, Miami
         Beach, FL 33139<br />
-        <strong>Contact:</strong>{" "}
-        <a href="mailto:chris@ssaff.co">chris@ssaff.co</a>
-        <br />
         <strong>Website:</strong>{" "}
         <a href="https://ssaff.co">ssaff.co</a>
       </p>
 
-      <h2>Compliance</h2>
-      <p>
-        Where SSAFF collects or transmits consumer information on behalf of a
-        partner, we comply with applicable federal and state law, including
-        the TCPA, CAN-SPAM Act, CCPA and other state privacy laws, and the
-        FTC&rsquo;s Endorsement Guides. Consumer consents are captured and
-        retained at the point of collection. Do-not-call and unsubscribe
-        requests are honored within the statutory window.
-      </p>
-
       <h2>Contact</h2>
       <p>
-        For partnership or compliance inquiries, email{" "}
-        <a href="mailto:chris@ssaff.co">chris@ssaff.co</a>.
+        Advertiser and partnership inquiries:{" "}
+        <a href="mailto:chris@ssaff.co">chris@ssaff.co</a>. Compliance and
+        privacy: <a href="mailto:privacy@ssaff.co">privacy@ssaff.co</a>.
+        We reply to qualified inquiries within two business days.
       </p>
     </LegalShell>
   );
