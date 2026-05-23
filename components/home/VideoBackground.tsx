@@ -1,15 +1,23 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { MotionValue, motion, useScroll, useTransform } from "framer-motion";
 
 type Progress = ReturnType<typeof useScroll>["scrollYProgress"];
 
-const layers = [
+type LayerDef = {
+  src: string;
+  poster: string;
+  opacityStops: { input: number[]; output: number[] };
+  overlay: string;
+};
+
+const layers: LayerDef[] = [
   {
     src: "/video/hero.mp4",
     poster: "/video/hero-poster.jpg",
     opacityStops: { input: [0, 0.2, 0.35], output: [1, 1, 0] },
-    overlay: "linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.30) 50%, rgba(0,0,0,0.55) 100%)",
+    overlay:
+      "linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.30) 50%, rgba(0,0,0,0.55) 100%)",
   },
   {
     src: "/video/hero2.mp4",
@@ -18,15 +26,17 @@ const layers = [
       input: [0.2, 0.35, 0.55, 0.75],
       output: [0, 1, 1, 0],
     },
-    overlay: "linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.30) 50%, rgba(0,0,0,0.55) 100%)",
+    overlay:
+      "linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.30) 50%, rgba(0,0,0,0.55) 100%)",
   },
   {
     src: "/video/hero3.mp4",
     poster: "/video/hero3-poster.jpg",
     opacityStops: { input: [0.55, 0.75, 1], output: [0, 1, 1] },
-    overlay: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.42) 50%, rgba(0,0,0,0.62) 100%)",
+    overlay:
+      "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.42) 50%, rgba(0,0,0,0.62) 100%)",
   },
-] as const;
+];
 
 function Layer({
   src,
@@ -37,7 +47,7 @@ function Layer({
   src: string;
   poster: string;
   overlay: string;
-  opacity: ReturnType<typeof useTransform<number, number>>;
+  opacity: MotionValue<number>;
 }) {
   return (
     <motion.div
@@ -77,9 +87,9 @@ function Layer({
 }
 
 export default function VideoBackground({ progress }: { progress: Progress }) {
-  const o0 = useTransform(progress, [...layers[0].opacityStops.input], [...layers[0].opacityStops.output]);
-  const o1 = useTransform(progress, [...layers[1].opacityStops.input], [...layers[1].opacityStops.output]);
-  const o2 = useTransform(progress, [...layers[2].opacityStops.input], [...layers[2].opacityStops.output]);
+  const o0 = useTransform(progress, layers[0].opacityStops.input, layers[0].opacityStops.output);
+  const o1 = useTransform(progress, layers[1].opacityStops.input, layers[1].opacityStops.output);
+  const o2 = useTransform(progress, layers[2].opacityStops.input, layers[2].opacityStops.output);
   const opacities = [o0, o1, o2];
 
   return (
