@@ -65,6 +65,12 @@ const PROPERTIES: Property[] = [
     href: "https://astoria-auto-finance.vercel.app",
     category: "Financial · Auto finance",
   },
+  {
+    name: "Vera",
+    domain: "verahealth.com",
+    href: "https://getvera.vercel.app",
+    category: "Health · GLP-1 weight loss",
+  },
 ];
 
 export default function PropertiesPage() {
