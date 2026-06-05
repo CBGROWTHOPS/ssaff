@@ -34,7 +34,7 @@ const PROPERTIES: Property[] = [
   },
   {
     name: "Loopteam Creators",
-    domain: "creator.loopteam.app",
+    domain: "creators.loopteam.app",
     category: "Creator network",
   },
   {
