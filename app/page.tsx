@@ -264,22 +264,23 @@ function Closing() {
             justifyContent: "center",
             gap: 24,
             fontFamily: ui,
-            fontSize: 10,
+            fontSize: 11,
+            fontWeight: 600,
             letterSpacing: "0.18em",
             textTransform: "uppercase",
-            color: FAINT,
+            color: MUTED,
           }}
         >
-          <Link href="/partners" style={{ color: FAINT, textDecoration: "none" }}>
+          <Link href="/partners" style={{ color: MUTED, textDecoration: "none" }}>
             Partners
           </Link>
-          <Link href="/contact" style={{ color: FAINT, textDecoration: "none" }}>
+          <Link href="/contact" style={{ color: MUTED, textDecoration: "none" }}>
             Contact
           </Link>
-          <Link href="/privacy" style={{ color: FAINT, textDecoration: "none" }}>
+          <Link href="/privacy" style={{ color: MUTED, textDecoration: "none" }}>
             Privacy
           </Link>
-          <Link href="/terms" style={{ color: FAINT, textDecoration: "none" }}>
+          <Link href="/terms" style={{ color: MUTED, textDecoration: "none" }}>
             Terms
           </Link>
         </div>
