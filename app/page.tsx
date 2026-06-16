@@ -26,7 +26,7 @@ type BeatDef = {
 };
 
 const BEATS: BeatDef[] = [
-  { at: [0.0, 0.2], label: "Marketing company", line: "SSAFF" },
+  { at: [0.0, 0.2], label: "Media company", line: "SSAFF" },
   {
     at: [0.35, 0.55],
     label: "Operating",
@@ -295,7 +295,7 @@ function Closing() {
             marginTop: 24,
           }}
         >
-          marketing company · © 2026 SSAFF LLC
+          media company · © 2026 SSAFF LLC
         </span>
         <span
           style={{

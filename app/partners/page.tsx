@@ -5,7 +5,7 @@ import LegalShell from "@/components/legal/LegalShell";
 export const metadata: Metadata = {
   title: "Partners — SSAFF",
   description:
-    "Information for advertisers, networks, and publishers evaluating SSAFF as a marketing partner.",
+    "Information for advertisers, networks, and publishers evaluating SSAFF as a media partner.",
 };
 
 export default function PartnersPage() {
