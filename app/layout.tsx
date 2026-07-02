@@ -17,10 +17,10 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL("https://ssaff.co"),
   title: "SSAFF",
-  description: "Private system architecture.",
+  description: "Media company operating a portfolio of owned consumer brands across health, personal finance, e-commerce, and gaming.",
   openGraph: {
     title: "SSAFF",
-    description: "Private system architecture.",
+    description: "Media company operating a portfolio of owned consumer brands across health, personal finance, e-commerce, and gaming.",
     url: "https://ssaff.co",
     siteName: "SSAFF",
     type: "website",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "SSAFF",
-    description: "Private system architecture.",
+    description: "Media company operating a portfolio of owned consumer brands across health, personal finance, e-commerce, and gaming.",
   },
 };
 

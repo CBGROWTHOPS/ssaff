@@ -271,6 +271,9 @@ function Closing() {
             color: MUTED,
           }}
         >
+          <Link href="/about" style={{ color: MUTED, textDecoration: "none" }}>
+            About
+          </Link>
           <Link href="/partners" style={{ color: MUTED, textDecoration: "none" }}>
             Partners
           </Link>

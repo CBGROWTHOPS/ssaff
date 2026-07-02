@@ -18,7 +18,7 @@ type Property = {
   name: string;
   domain: string;
   category: string;
-  href?: string;
+  status?: "live" | "launching";
 };
 
 const PROPERTIES: Property[] = [
@@ -50,26 +50,26 @@ const PROPERTIES: Property[] = [
   {
     name: "DriverStart",
     domain: "driverstart.com",
-    href: "https://driverstart.vercel.app",
     category: "Gig economy · Driver onboarding",
+    status: "launching",
   },
   {
     name: "QuickCash Fund",
     domain: "quickcashfund.com",
-    href: "https://astoria-payday.vercel.app",
     category: "Financial · Personal loans",
+    status: "launching",
   },
   {
     name: "AutoApprove Now",
     domain: "autoapprovenow.com",
-    href: "https://astoria-auto-finance.vercel.app",
     category: "Financial · Auto finance",
+    status: "launching",
   },
   {
     name: "Vera",
     domain: "verahealth.com",
-    href: "https://getvera.vercel.app",
     category: "Health · GLP-1 weight loss",
+    status: "launching",
   },
 ];
 
@@ -138,63 +138,96 @@ export default function PropertiesPage() {
             borderTop: "1px solid rgba(22,22,26,0.08)",
           }}
         >
-          {PROPERTIES.map((p) => (
-            <li
-              key={p.domain}
-              style={{
-                borderBottom: "1px solid rgba(22,22,26,0.08)",
-                padding: "28px 0",
-                display: "flex",
-                alignItems: "baseline",
-                justifyContent: "space-between",
-                gap: 24,
-              }}
-            >
-              <div>
-                <a
-                  href={p.href ?? `https://${p.domain}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    fontFamily: display,
-                    fontWeight: 300,
-                    fontSize: "clamp(22px, 3.4vw, 30px)",
-                    letterSpacing: "-0.02em",
-                    color: INK,
-                    textDecoration: "none",
-                  }}
-                >
-                  {p.name}
-                </a>
-                <div
-                  style={{
-                    fontFamily: ui,
-                    fontSize: 11,
-                    letterSpacing: "0.18em",
-                    textTransform: "uppercase",
-                    color: MUTED,
-                    marginTop: 6,
-                  }}
-                >
-                  {p.category}
-                </div>
-              </div>
-              <a
-                href={p.href ?? `https://${p.domain}`}
-                target="_blank"
-                rel="noopener noreferrer"
+          {PROPERTIES.map((p) => {
+            const isLive = p.status !== "launching";
+            const target = `https://${p.domain}`;
+            return (
+              <li
+                key={p.domain}
                 style={{
-                  fontFamily: ui,
-                  fontSize: 13,
-                  color: MUTED,
-                  textDecoration: "none",
-                  whiteSpace: "nowrap",
+                  borderBottom: "1px solid rgba(22,22,26,0.08)",
+                  padding: "28px 0",
+                  display: "flex",
+                  alignItems: "baseline",
+                  justifyContent: "space-between",
+                  gap: 24,
                 }}
               >
-                {p.domain} ↗
-              </a>
-            </li>
-          ))}
+                <div>
+                  {isLive ? (
+                    <a
+                      href={target}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        fontFamily: display,
+                        fontWeight: 300,
+                        fontSize: "clamp(22px, 3.4vw, 30px)",
+                        letterSpacing: "-0.02em",
+                        color: INK,
+                        textDecoration: "none",
+                      }}
+                    >
+                      {p.name}
+                    </a>
+                  ) : (
+                    <span
+                      style={{
+                        fontFamily: display,
+                        fontWeight: 300,
+                        fontSize: "clamp(22px, 3.4vw, 30px)",
+                        letterSpacing: "-0.02em",
+                        color: INK,
+                      }}
+                    >
+                      {p.name}
+                    </span>
+                  )}
+                  <div
+                    style={{
+                      fontFamily: ui,
+                      fontSize: 11,
+                      letterSpacing: "0.18em",
+                      textTransform: "uppercase",
+                      color: MUTED,
+                      marginTop: 6,
+                    }}
+                  >
+                    {p.category}
+                  </div>
+                </div>
+                {isLive ? (
+                  <a
+                    href={target}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      fontFamily: ui,
+                      fontSize: 13,
+                      color: MUTED,
+                      textDecoration: "none",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {p.domain} ↗
+                  </a>
+                ) : (
+                  <span
+                    style={{
+                      fontFamily: ui,
+                      fontSize: 11,
+                      letterSpacing: "0.14em",
+                      textTransform: "uppercase",
+                      color: MUTED,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    In development
+                  </span>
+                )}
+              </li>
+            );
+          })}
         </ul>
 
         <div

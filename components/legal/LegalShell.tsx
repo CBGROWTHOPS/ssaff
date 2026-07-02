@@ -116,6 +116,9 @@ export default function LegalShell({
           <Link href="/" style={{ color: FAINT, textDecoration: "none" }}>
             Home
           </Link>
+          <Link href="/about" style={{ color: FAINT, textDecoration: "none" }}>
+            About
+          </Link>
           <Link href="/partners" style={{ color: FAINT, textDecoration: "none" }}>
             Partners
           </Link>
