@@ -215,7 +215,6 @@ export default function HomePage() {
         </div>
 
         <ForAdvertisers />
-        <AboutTeaser />
         <Closing />
       </main>
     </SmoothScroll>
@@ -302,56 +301,6 @@ function ForAdvertisers() {
           }}
         >
           Partner with SSAFF →
-        </Link>
-      </div>
-    </section>
-  );
-}
-
-function AboutTeaser() {
-  return (
-    <section
-      style={{
-        background: BG,
-        padding: "clamp(96px, 14vw, 160px) clamp(20px, 6vw, 64px)",
-      }}
-    >
-      <div style={{ maxWidth: 1120, margin: "0 auto" }}>
-        <SectionEyebrow>About SSAFF</SectionEyebrow>
-        <SectionHeading>Founder-run, from Miami Beach.</SectionHeading>
-
-        <p
-          style={{
-            fontFamily: display,
-            fontWeight: 300,
-            fontSize: "clamp(18px, 2vw, 22px)",
-            lineHeight: 1.55,
-            color: "rgba(22,22,26,0.78)",
-            maxWidth: 720,
-            margin: 0,
-            marginBottom: 40,
-          }}
-        >
-          SSAFF LLC is founded and operated by Christopher Brown out of Miami
-          Beach, Florida. A decade of hands-on experience running consumer
-          brands across insurance, personal finance, gig economy, and
-          e-commerce.
-        </p>
-
-        <Link
-          href="/about"
-          style={{
-            fontFamily: ui,
-            fontSize: 13,
-            letterSpacing: "0.18em",
-            textTransform: "uppercase",
-            color: INK,
-            textDecoration: "none",
-            borderBottom: `1px solid ${INK}`,
-            paddingBottom: 4,
-          }}
-        >
-          More about SSAFF →
         </Link>
       </div>
     </section>
