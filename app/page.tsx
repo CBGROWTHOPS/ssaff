@@ -214,7 +214,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        <WhatWeOperate />
         <ForAdvertisers />
         <AboutTeaser />
         <Closing />
@@ -222,14 +221,6 @@ export default function HomePage() {
     </SmoothScroll>
   );
 }
-
-const CATEGORIES: { name: string; blurb: string }[] = [
-  { name: "Gaming & Rewards", blurb: "Reward-driven consumer sites reaching high-intent gamers." },
-  { name: "Family & Sampling", blurb: "Sampling programs and product discovery for new parents." },
-  { name: "Creator Networks", blurb: "Affiliate distribution and monetization for content creators." },
-  { name: "Consumer Rewards", blurb: "Cashback and prize-driven consumer offers." },
-  { name: "DTC E-commerce", blurb: "Owned direct-to-consumer product brands." },
-];
 
 function SectionEyebrow({ children }: { children: React.ReactNode }) {
   return (
@@ -268,84 +259,6 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
   );
 }
 
-function WhatWeOperate() {
-  return (
-    <section
-      style={{
-        background: BG,
-        padding: "clamp(96px, 14vw, 160px) clamp(20px, 6vw, 64px)",
-      }}
-    >
-      <div style={{ maxWidth: 1120, margin: "0 auto" }}>
-        <SectionEyebrow>What we operate</SectionEyebrow>
-        <SectionHeading>Consumer websites across five categories.</SectionHeading>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-            gap: 0,
-            borderTop: "1px solid rgba(22,22,26,0.10)",
-          }}
-        >
-          {CATEGORIES.map((c) => (
-            <div
-              key={c.name}
-              style={{
-                padding: "32px 20px 28px 4px",
-                borderBottom: "1px solid rgba(22,22,26,0.10)",
-                borderRight: "1px solid rgba(22,22,26,0.10)",
-                color: INK,
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: display,
-                  fontWeight: 300,
-                  fontSize: "clamp(20px, 2.6vw, 26px)",
-                  letterSpacing: "-0.02em",
-                  color: INK,
-                  marginBottom: 12,
-                }}
-              >
-                {c.name}
-              </div>
-              <div
-                style={{
-                  fontFamily: ui,
-                  fontSize: 13,
-                  lineHeight: 1.55,
-                  color: MUTED,
-                }}
-              >
-                {c.blurb}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div style={{ marginTop: 40 }}>
-          <Link
-            href="/partners"
-            style={{
-              fontFamily: ui,
-              fontSize: 13,
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              color: INK,
-              textDecoration: "none",
-              borderBottom: `1px solid ${INK}`,
-              paddingBottom: 4,
-            }}
-          >
-            How we work with partners →
-          </Link>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function ForAdvertisers() {
   return (
     <section
@@ -372,8 +285,7 @@ function ForAdvertisers() {
         >
           SSAFF operates owned audiences across gaming, family, e-commerce, and
           consumer rewards. We partner directly with advertisers, networks,
-          and platforms on lead generation and performance campaigns —
-          U.S., Tier 1 only, fully compliant.
+          and platforms on lead generation and performance campaigns.
         </p>
 
         <Link
