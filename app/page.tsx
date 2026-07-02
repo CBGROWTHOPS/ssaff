@@ -214,7 +214,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <OurBrands />
+        <WhatWeOperate />
         <ForAdvertisers />
         <AboutTeaser />
         <Closing />
@@ -223,12 +223,12 @@ export default function HomePage() {
   );
 }
 
-const LIVE_BRANDS: { name: string; domain: string; category: string }[] = [
-  { name: "GameFlow Labs", domain: "gameflowlabs.com", category: "Gaming · Rewards" },
-  { name: "Baby Deals Network", domain: "babydealsnetwork.com", category: "Family · Sampling" },
-  { name: "Loopteam Creators", domain: "creators.loopteam.app", category: "Creator network" },
-  { name: "Loopteam Offers", domain: "offer.loopteam.app", category: "Consumer · Rewards" },
-  { name: "Capmaxxer", domain: "capmaxxer.com", category: "DTC · E-commerce" },
+const CATEGORIES: { name: string; blurb: string }[] = [
+  { name: "Gaming & Rewards", blurb: "Reward-driven consumer sites reaching high-intent gamers." },
+  { name: "Family & Sampling", blurb: "Sampling programs and product discovery for new parents." },
+  { name: "Creator Networks", blurb: "Affiliate distribution and monetization for content creators." },
+  { name: "Consumer Rewards", blurb: "Cashback and prize-driven consumer offers." },
+  { name: "DTC E-commerce", blurb: "Owned direct-to-consumer product brands." },
 ];
 
 function SectionEyebrow({ children }: { children: React.ReactNode }) {
@@ -268,7 +268,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
   );
 }
 
-function OurBrands() {
+function WhatWeOperate() {
   return (
     <section
       style={{
@@ -277,8 +277,8 @@ function OurBrands() {
       }}
     >
       <div style={{ maxWidth: 1120, margin: "0 auto" }}>
-        <SectionEyebrow>Our brands</SectionEyebrow>
-        <SectionHeading>A portfolio of owned consumer websites.</SectionHeading>
+        <SectionEyebrow>What we operate</SectionEyebrow>
+        <SectionHeading>Consumer websites across five categories.</SectionHeading>
 
         <div
           style={{
@@ -288,20 +288,14 @@ function OurBrands() {
             borderTop: "1px solid rgba(22,22,26,0.10)",
           }}
         >
-          {LIVE_BRANDS.map((b) => (
-            <a
-              key={b.domain}
-              href={`https://${b.domain}`}
-              target="_blank"
-              rel="noopener noreferrer"
+          {CATEGORIES.map((c) => (
+            <div
+              key={c.name}
               style={{
-                display: "block",
-                padding: "32px 4px 28px",
+                padding: "32px 20px 28px 4px",
                 borderBottom: "1px solid rgba(22,22,26,0.10)",
                 borderRight: "1px solid rgba(22,22,26,0.10)",
-                textDecoration: "none",
                 color: INK,
-                transition: "background 200ms ease",
               }}
             >
               <div
@@ -311,39 +305,28 @@ function OurBrands() {
                   fontSize: "clamp(20px, 2.6vw, 26px)",
                   letterSpacing: "-0.02em",
                   color: INK,
-                  marginBottom: 10,
+                  marginBottom: 12,
                 }}
               >
-                {b.name}
+                {c.name}
               </div>
               <div
                 style={{
                   fontFamily: ui,
-                  fontSize: 11,
-                  letterSpacing: "0.18em",
-                  textTransform: "uppercase",
-                  color: MUTED,
-                  marginBottom: 18,
-                }}
-              >
-                {b.category}
-              </div>
-              <div
-                style={{
-                  fontFamily: ui,
-                  fontSize: 12,
+                  fontSize: 13,
+                  lineHeight: 1.55,
                   color: MUTED,
                 }}
               >
-                {b.domain} ↗
+                {c.blurb}
               </div>
-            </a>
+            </div>
           ))}
         </div>
 
         <div style={{ marginTop: 40 }}>
           <Link
-            href="/properties"
+            href="/partners"
             style={{
               fontFamily: ui,
               fontSize: 13,
@@ -355,7 +338,7 @@ function OurBrands() {
               paddingBottom: 4,
             }}
           >
-            See full portfolio →
+            How we work with partners →
           </Link>
         </div>
       </div>
@@ -464,9 +447,13 @@ function AboutTeaser() {
 }
 
 function Closing() {
+  const WHITE = "#FFFFFF";
+  const WHITE_MUTED = "rgba(255,255,255,0.55)";
+  const WHITE_FAINT = "rgba(255,255,255,0.38)";
   return (
     <section
       style={{
+        background: "#0A0A0C",
         minHeight: "100svh",
         display: "flex",
         flexDirection: "column",
@@ -491,7 +478,7 @@ function Closing() {
             fontStyle: "italic",
             fontSize: "clamp(64px, 14vw, 180px)",
             letterSpacing: "-0.04em",
-            color: INK,
+            color: WHITE,
             lineHeight: 1,
             marginBottom: 96,
           }}
@@ -511,22 +498,22 @@ function Closing() {
             fontWeight: 600,
             letterSpacing: "0.18em",
             textTransform: "uppercase",
-            color: MUTED,
+            color: WHITE_MUTED,
           }}
         >
-          <Link href="/about" style={{ color: MUTED, textDecoration: "none" }}>
+          <Link href="/about" style={{ color: WHITE_MUTED, textDecoration: "none" }}>
             About
           </Link>
-          <Link href="/partners" style={{ color: MUTED, textDecoration: "none" }}>
+          <Link href="/partners" style={{ color: WHITE_MUTED, textDecoration: "none" }}>
             Partners
           </Link>
-          <Link href="/contact" style={{ color: MUTED, textDecoration: "none" }}>
+          <Link href="/contact" style={{ color: WHITE_MUTED, textDecoration: "none" }}>
             Contact
           </Link>
-          <Link href="/privacy" style={{ color: MUTED, textDecoration: "none" }}>
+          <Link href="/privacy" style={{ color: WHITE_MUTED, textDecoration: "none" }}>
             Privacy
           </Link>
-          <Link href="/terms" style={{ color: MUTED, textDecoration: "none" }}>
+          <Link href="/terms" style={{ color: WHITE_MUTED, textDecoration: "none" }}>
             Terms
           </Link>
         </div>
@@ -537,7 +524,7 @@ function Closing() {
             fontSize: 10,
             letterSpacing: "0.14em",
             textTransform: "uppercase",
-            color: FAINT,
+            color: WHITE_FAINT,
             marginTop: 24,
           }}
         >
@@ -549,7 +536,7 @@ function Closing() {
             fontSize: 10,
             letterSpacing: "0.14em",
             textTransform: "none",
-            color: FAINT,
+            color: WHITE_FAINT,
             marginTop: 6,
           }}
         >
