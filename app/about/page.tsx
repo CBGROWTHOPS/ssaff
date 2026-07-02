@@ -27,7 +27,16 @@ export default function AboutPage() {
       </p>
       <p>
         You can reach Chris directly at{" "}
-        <a href="mailto:chris@ssaff.co">chris@ssaff.co</a> or on{" "}
+        <a href="mailto:chris@ssaff.co">chris@ssaff.co</a> or{" "}
+        <a href="tel:+17547577436">(754) 757-7436</a>. On social:{" "}
+        <a
+          href="https://www.facebook.com/ssaff"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Facebook
+        </a>{" "}
+        and{" "}
         <a
           href="https://www.linkedin.com/company/ssaff"
           target="_blank"
@@ -53,6 +62,8 @@ export default function AboutPage() {
         SSAFF LLC<br />
         407 Lincoln Rd, Suite 6H PMB 1834<br />
         Miami Beach, FL 33139<br />
+        <a href="tel:+17547577436">(754) 757-7436</a>
+        {" · "}
         <a href="mailto:chris@ssaff.co">chris@ssaff.co</a>
       </p>
     </LegalShell>

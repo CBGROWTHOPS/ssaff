@@ -95,6 +95,8 @@ export default function PartnersPage() {
         <strong>Entity type:</strong> Florida limited liability company<br />
         <strong>Address:</strong> 407 Lincoln Rd, Suite 6H PMB 1834, Miami
         Beach, FL 33139<br />
+        <strong>Phone:</strong>{" "}
+        <a href="tel:+17547577436">(754) 757-7436</a><br />
         <strong>Website:</strong>{" "}
         <a href="https://ssaff.co">ssaff.co</a>
       </p>
@@ -102,9 +104,17 @@ export default function PartnersPage() {
       <h2>Contact</h2>
       <p>
         Advertiser and partnership inquiries:{" "}
-        <a href="mailto:chris@ssaff.co">chris@ssaff.co</a>. Compliance and
+        <a href="mailto:chris@ssaff.co">chris@ssaff.co</a> or{" "}
+        <a href="tel:+17547577436">(754) 757-7436</a>. Compliance and
         privacy: <a href="mailto:privacy@ssaff.co">privacy@ssaff.co</a>.
         We reply to qualified inquiries within two business days.
+      </p>
+
+      <h2>Social</h2>
+      <p>
+        <a href="https://www.facebook.com/ssaff" target="_blank" rel="noopener noreferrer">Facebook</a>
+        {" · "}
+        <a href="https://www.linkedin.com/company/ssaff" target="_blank" rel="noopener noreferrer">LinkedIn</a>
       </p>
     </LegalShell>
   );
