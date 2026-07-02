@@ -282,9 +282,8 @@ function ForAdvertisers() {
             marginBottom: 40,
           }}
         >
-          SSAFF operates owned audiences across gaming, family, e-commerce, and
-          consumer rewards. We partner directly with advertisers, networks,
-          and platforms on lead generation and performance campaigns.
+          We partner directly with advertisers, networks, and platforms on
+          lead generation and performance campaigns.
         </p>
 
         <Link
