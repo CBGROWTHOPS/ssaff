@@ -214,9 +214,252 @@ export default function HomePage() {
           </div>
         </div>
 
+        <OurBrands />
+        <ForAdvertisers />
+        <AboutTeaser />
         <Closing />
       </main>
     </SmoothScroll>
+  );
+}
+
+const LIVE_BRANDS: { name: string; domain: string; category: string }[] = [
+  { name: "GameFlow Labs", domain: "gameflowlabs.com", category: "Gaming · Rewards" },
+  { name: "Baby Deals Network", domain: "babydealsnetwork.com", category: "Family · Sampling" },
+  { name: "Loopteam Creators", domain: "creators.loopteam.app", category: "Creator network" },
+  { name: "Loopteam Offers", domain: "offer.loopteam.app", category: "Consumer · Rewards" },
+  { name: "Capmaxxer", domain: "capmaxxer.com", category: "DTC · E-commerce" },
+];
+
+function SectionEyebrow({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        fontFamily: ui,
+        fontSize: 11,
+        letterSpacing: "0.26em",
+        textTransform: "uppercase",
+        color: MUTED,
+        marginBottom: 20,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h2
+      style={{
+        fontFamily: display,
+        fontWeight: 300,
+        fontSize: "clamp(36px, 5.6vw, 64px)",
+        letterSpacing: "-0.02em",
+        lineHeight: 1.08,
+        color: INK,
+        margin: 0,
+        marginBottom: 48,
+        maxWidth: 900,
+      }}
+    >
+      {children}
+    </h2>
+  );
+}
+
+function OurBrands() {
+  return (
+    <section
+      style={{
+        background: BG,
+        padding: "clamp(96px, 14vw, 160px) clamp(20px, 6vw, 64px)",
+      }}
+    >
+      <div style={{ maxWidth: 1120, margin: "0 auto" }}>
+        <SectionEyebrow>Our brands</SectionEyebrow>
+        <SectionHeading>A portfolio of owned consumer websites.</SectionHeading>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+            gap: 0,
+            borderTop: "1px solid rgba(22,22,26,0.10)",
+          }}
+        >
+          {LIVE_BRANDS.map((b) => (
+            <a
+              key={b.domain}
+              href={`https://${b.domain}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "block",
+                padding: "32px 4px 28px",
+                borderBottom: "1px solid rgba(22,22,26,0.10)",
+                borderRight: "1px solid rgba(22,22,26,0.10)",
+                textDecoration: "none",
+                color: INK,
+                transition: "background 200ms ease",
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: display,
+                  fontWeight: 300,
+                  fontSize: "clamp(20px, 2.6vw, 26px)",
+                  letterSpacing: "-0.02em",
+                  color: INK,
+                  marginBottom: 10,
+                }}
+              >
+                {b.name}
+              </div>
+              <div
+                style={{
+                  fontFamily: ui,
+                  fontSize: 11,
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: MUTED,
+                  marginBottom: 18,
+                }}
+              >
+                {b.category}
+              </div>
+              <div
+                style={{
+                  fontFamily: ui,
+                  fontSize: 12,
+                  color: MUTED,
+                }}
+              >
+                {b.domain} ↗
+              </div>
+            </a>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 40 }}>
+          <Link
+            href="/properties"
+            style={{
+              fontFamily: ui,
+              fontSize: 13,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: INK,
+              textDecoration: "none",
+              borderBottom: `1px solid ${INK}`,
+              paddingBottom: 4,
+            }}
+          >
+            See full portfolio →
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ForAdvertisers() {
+  return (
+    <section
+      style={{
+        background: "#F3F2EC",
+        padding: "clamp(96px, 14vw, 160px) clamp(20px, 6vw, 64px)",
+      }}
+    >
+      <div style={{ maxWidth: 1120, margin: "0 auto" }}>
+        <SectionEyebrow>For advertisers &amp; networks</SectionEyebrow>
+        <SectionHeading>We work with performance marketers who want reach.</SectionHeading>
+
+        <p
+          style={{
+            fontFamily: display,
+            fontWeight: 300,
+            fontSize: "clamp(18px, 2vw, 22px)",
+            lineHeight: 1.55,
+            color: "rgba(22,22,26,0.78)",
+            maxWidth: 720,
+            margin: 0,
+            marginBottom: 40,
+          }}
+        >
+          SSAFF operates owned audiences across gaming, family, e-commerce, and
+          consumer rewards. We partner directly with advertisers, networks,
+          and platforms on lead generation and performance campaigns —
+          U.S., Tier 1 only, fully compliant.
+        </p>
+
+        <Link
+          href="/partners"
+          style={{
+            fontFamily: ui,
+            fontSize: 13,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            color: INK,
+            textDecoration: "none",
+            borderBottom: `1px solid ${INK}`,
+            paddingBottom: 4,
+          }}
+        >
+          Partner with SSAFF →
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+function AboutTeaser() {
+  return (
+    <section
+      style={{
+        background: BG,
+        padding: "clamp(96px, 14vw, 160px) clamp(20px, 6vw, 64px)",
+      }}
+    >
+      <div style={{ maxWidth: 1120, margin: "0 auto" }}>
+        <SectionEyebrow>About SSAFF</SectionEyebrow>
+        <SectionHeading>Founder-run, from Miami Beach.</SectionHeading>
+
+        <p
+          style={{
+            fontFamily: display,
+            fontWeight: 300,
+            fontSize: "clamp(18px, 2vw, 22px)",
+            lineHeight: 1.55,
+            color: "rgba(22,22,26,0.78)",
+            maxWidth: 720,
+            margin: 0,
+            marginBottom: 40,
+          }}
+        >
+          SSAFF LLC is founded and operated by Christopher Brown out of Miami
+          Beach, Florida. A decade of hands-on experience running consumer
+          brands across insurance, personal finance, gig economy, and
+          e-commerce.
+        </p>
+
+        <Link
+          href="/about"
+          style={{
+            fontFamily: ui,
+            fontSize: 13,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            color: INK,
+            textDecoration: "none",
+            borderBottom: `1px solid ${INK}`,
+            paddingBottom: 4,
+          }}
+        >
+          More about SSAFF →
+        </Link>
+      </div>
+    </section>
   );
 }
 
