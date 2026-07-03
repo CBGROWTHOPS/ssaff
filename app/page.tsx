@@ -214,95 +214,9 @@ export default function HomePage() {
           </div>
         </div>
 
-        <ForAdvertisers />
         <Closing />
       </main>
     </SmoothScroll>
-  );
-}
-
-function SectionEyebrow({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      style={{
-        fontFamily: ui,
-        fontSize: 11,
-        letterSpacing: "0.26em",
-        textTransform: "uppercase",
-        color: MUTED,
-        marginBottom: 20,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function SectionHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <h2
-      style={{
-        fontFamily: display,
-        fontWeight: 300,
-        fontSize: "clamp(36px, 5.6vw, 64px)",
-        letterSpacing: "-0.02em",
-        lineHeight: 1.08,
-        color: INK,
-        margin: 0,
-        marginBottom: 48,
-        maxWidth: 900,
-      }}
-    >
-      {children}
-    </h2>
-  );
-}
-
-function ForAdvertisers() {
-  return (
-    <section
-      style={{
-        background: "#F3F2EC",
-        padding: "clamp(96px, 14vw, 160px) clamp(20px, 6vw, 64px)",
-      }}
-    >
-      <div style={{ maxWidth: 1120, margin: "0 auto" }}>
-        <SectionEyebrow>For advertisers &amp; networks</SectionEyebrow>
-        <SectionHeading>We work with performance marketers who want reach.</SectionHeading>
-
-        <p
-          style={{
-            fontFamily: display,
-            fontWeight: 300,
-            fontSize: "clamp(18px, 2vw, 22px)",
-            lineHeight: 1.55,
-            color: "rgba(22,22,26,0.78)",
-            maxWidth: 720,
-            margin: 0,
-            marginBottom: 40,
-          }}
-        >
-          We partner directly with advertisers, networks, and platforms on
-          lead generation and performance campaigns.
-        </p>
-
-        <Link
-          href="/partners"
-          style={{
-            fontFamily: ui,
-            fontSize: 13,
-            letterSpacing: "0.18em",
-            textTransform: "uppercase",
-            color: INK,
-            textDecoration: "none",
-            borderBottom: `1px solid ${INK}`,
-            paddingBottom: 4,
-          }}
-        >
-          Partner with SSAFF →
-        </Link>
-      </div>
-    </section>
   );
 }
 
