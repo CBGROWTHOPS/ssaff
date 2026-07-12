@@ -18,6 +18,7 @@ type Property = {
   name: string;
   domain: string;
   category: string;
+  url?: string;
 };
 
 const PROPERTIES: Property[] = [
@@ -25,21 +26,25 @@ const PROPERTIES: Property[] = [
     name: "DriverStart",
     domain: "driverstart.com",
     category: "Gig economy · Driver onboarding",
+    url: "https://driverstart.vercel.app",
   },
   {
     name: "QuickCash Fund",
     domain: "quickcashfund.com",
     category: "Financial · Personal loans",
+    url: "https://astoria-payday.vercel.app",
   },
   {
     name: "AutoApprove Now",
     domain: "autoapprovenow.com",
     category: "Financial · Auto finance",
+    url: "https://astoria-auto-finance.vercel.app",
   },
   {
     name: "Vera",
     domain: "verahealth.com",
     category: "Health · GLP-1 weight loss",
+    url: "https://getvera.vercel.app",
   },
   {
     name: "GameFlow Labs",
@@ -134,7 +139,7 @@ export default function PropertiesPage() {
           }}
         >
           {PROPERTIES.map((p) => {
-            const target = `https://${p.domain}`;
+            const target = p.url ?? `https://${p.domain}`;
             return (
               <li
                 key={p.domain}
