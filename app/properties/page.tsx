@@ -18,10 +18,29 @@ type Property = {
   name: string;
   domain: string;
   category: string;
-  status?: "live" | "launching";
 };
 
 const PROPERTIES: Property[] = [
+  {
+    name: "DriverStart",
+    domain: "driverstart.com",
+    category: "Gig economy · Driver onboarding",
+  },
+  {
+    name: "QuickCash Fund",
+    domain: "quickcashfund.com",
+    category: "Financial · Personal loans",
+  },
+  {
+    name: "AutoApprove Now",
+    domain: "autoapprovenow.com",
+    category: "Financial · Auto finance",
+  },
+  {
+    name: "Vera",
+    domain: "verahealth.com",
+    category: "Health · GLP-1 weight loss",
+  },
   {
     name: "GameFlow Labs",
     domain: "gameflowlabs.com",
@@ -46,30 +65,6 @@ const PROPERTIES: Property[] = [
     name: "Capmaxxer",
     domain: "capmaxxer.com",
     category: "DTC · E-commerce",
-  },
-  {
-    name: "DriverStart",
-    domain: "driverstart.com",
-    category: "Gig economy · Driver onboarding",
-    status: "launching",
-  },
-  {
-    name: "QuickCash Fund",
-    domain: "quickcashfund.com",
-    category: "Financial · Personal loans",
-    status: "launching",
-  },
-  {
-    name: "AutoApprove Now",
-    domain: "autoapprovenow.com",
-    category: "Financial · Auto finance",
-    status: "launching",
-  },
-  {
-    name: "Vera",
-    domain: "verahealth.com",
-    category: "Health · GLP-1 weight loss",
-    status: "launching",
   },
 ];
 
@@ -139,7 +134,6 @@ export default function PropertiesPage() {
           }}
         >
           {PROPERTIES.map((p) => {
-            const isLive = p.status !== "launching";
             const target = `https://${p.domain}`;
             return (
               <li
@@ -154,35 +148,21 @@ export default function PropertiesPage() {
                 }}
               >
                 <div>
-                  {isLive ? (
-                    <a
-                      href={target}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        fontFamily: display,
-                        fontWeight: 300,
-                        fontSize: "clamp(22px, 3.4vw, 30px)",
-                        letterSpacing: "-0.02em",
-                        color: INK,
-                        textDecoration: "none",
-                      }}
-                    >
-                      {p.name}
-                    </a>
-                  ) : (
-                    <span
-                      style={{
-                        fontFamily: display,
-                        fontWeight: 300,
-                        fontSize: "clamp(22px, 3.4vw, 30px)",
-                        letterSpacing: "-0.02em",
-                        color: INK,
-                      }}
-                    >
-                      {p.name}
-                    </span>
-                  )}
+                  <a
+                    href={target}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      fontFamily: display,
+                      fontWeight: 300,
+                      fontSize: "clamp(22px, 3.4vw, 30px)",
+                      letterSpacing: "-0.02em",
+                      color: INK,
+                      textDecoration: "none",
+                    }}
+                  >
+                    {p.name}
+                  </a>
                   <div
                     style={{
                       fontFamily: ui,
@@ -196,35 +176,20 @@ export default function PropertiesPage() {
                     {p.category}
                   </div>
                 </div>
-                {isLive ? (
-                  <a
-                    href={target}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      fontFamily: ui,
-                      fontSize: 13,
-                      color: MUTED,
-                      textDecoration: "none",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {p.domain} ↗
-                  </a>
-                ) : (
-                  <span
-                    style={{
-                      fontFamily: ui,
-                      fontSize: 11,
-                      letterSpacing: "0.14em",
-                      textTransform: "uppercase",
-                      color: MUTED,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    In development
-                  </span>
-                )}
+                <a
+                  href={target}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    fontFamily: ui,
+                    fontSize: 13,
+                    color: MUTED,
+                    textDecoration: "none",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {p.domain} ↗
+                </a>
               </li>
             );
           })}
