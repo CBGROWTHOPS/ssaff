@@ -62,11 +62,6 @@ const PROPERTIES: Property[] = [
     category: "Creator network",
   },
   {
-    name: "Loopteam Offers",
-    domain: "offer.loopteam.app",
-    category: "Consumer · Rewards",
-  },
-  {
     name: "Capmaxxer",
     domain: "capmaxxer.com",
     category: "DTC · E-commerce",
