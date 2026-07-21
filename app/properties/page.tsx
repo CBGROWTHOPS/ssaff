@@ -66,6 +66,11 @@ const PROPERTIES: Property[] = [
     domain: "capmaxxer.com",
     category: "DTC · E-commerce",
   },
+  {
+    name: "Porch Digest",
+    domain: "porchdigest.com",
+    category: "Home services · Home & garden DIY",
+  },
 ];
 
 export default function PropertiesPage() {
